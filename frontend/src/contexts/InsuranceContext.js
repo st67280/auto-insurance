@@ -53,6 +53,8 @@ export const InsuranceProvider = ({ children }) => {
     const [pricing, setPricing] = useState(null);
     const [loadingPricing, setLoadingPricing] = useState(false);
     const [pricingError, setPricingError] = useState(null);
+    // Флаг для отслеживания необходимости пересчета
+    const [needRecalculation, setNeedRecalculation] = useState(false);
 
     // Состояние процесса оформления
     const [currentStep, setCurrentStep] = useState(1);
@@ -85,6 +87,12 @@ export const InsuranceProvider = ({ children }) => {
             setVehicle(vehicleData);
             setVehicleType(vehicleData.type);
             setIsElectric(vehicleData.isElectric);
+
+            // Отмечаем необходимость пересчета цен
+            setNeedRecalculation(true);
+            // Сбрасываем текущие цены
+            setPricing(null);
+
             return vehicleData;
         } catch (err) {
             console.error('Ошибка при получении ТС:', err);
@@ -105,6 +113,12 @@ export const InsuranceProvider = ({ children }) => {
             setVehicle(newVehicle);
             setVehicleType(newVehicle.type);
             setIsElectric(newVehicle.isElectric);
+
+            // Отмечаем необходимость пересчета цен
+            setNeedRecalculation(true);
+            // Сбрасываем текущие цены
+            setPricing(null);
+
             return newVehicle;
         } catch (err) {
             console.error('Ошибка при создании ТС:', err);
@@ -119,16 +133,24 @@ export const InsuranceProvider = ({ children }) => {
     // Функция обновления информации о страхователе
     const updateCustomerInfo = (info) => {
         setCustomerInfo({ ...customerInfo, ...info });
+        // Отмечаем необходимость пересчета цен
+        setNeedRecalculation(true);
     };
 
     // Функция выбора пакета страхования
     const selectPackage = (packageType) => {
-        setSelectedPackage(packageType);
+        if (packageType !== selectedPackage) {
+            setSelectedPackage(packageType);
+            // Отмечаем необходимость пересчета цен
+            setNeedRecalculation(true);
+        }
     };
 
     // Функция обновления дополнительных услуг
     const updateAdditionalServices = (services) => {
         setAdditionalServices({ ...additionalServices, ...services });
+        // Отмечаем необходимость пересчета цен
+        setNeedRecalculation(true);
     };
 
     // Функция расчета стоимости страховки
@@ -148,6 +170,10 @@ export const InsuranceProvider = ({ children }) => {
                 additionalServices
             );
             setPricing(pricingData);
+
+            // Сбрасываем флаг необходимости пересчета
+            setNeedRecalculation(false);
+
             return pricingData;
         } catch (err) {
             console.error('Ошибка при расчете страховки:', err);
@@ -158,6 +184,21 @@ export const InsuranceProvider = ({ children }) => {
             setLoadingPricing(false);
         }
     };
+
+    // Автоматический пересчет цен при необходимости
+    useEffect(() => {
+        const autoRecalculate = async () => {
+            if (vehicle && needRecalculation && currentStep >= 3) {
+                try {
+                    await calculateInsurance();
+                } catch (error) {
+                    console.error('Ошибка при автоматическом пересчете цен:', error);
+                }
+            }
+        };
+
+        autoRecalculate();
+    }, [vehicle, needRecalculation, currentStep]);
 
     // Функция создания страховки
     const createInsurance = async () => {
@@ -195,6 +236,9 @@ export const InsuranceProvider = ({ children }) => {
 
     // Функция сброса формы
     const resetForm = () => {
+        // Очищаем кэш расчетов
+        insuranceService.clearCalculationCache();
+
         setVehicle(null);
         setVehicleType('car');
         setIsElectric(false);
@@ -228,6 +272,7 @@ export const InsuranceProvider = ({ children }) => {
         setPricing(null);
         setCurrentStep(1);
         setInsurance(null);
+        setNeedRecalculation(false);
     };
 
     // Предоставляемое значение контекста

@@ -6,8 +6,11 @@ const adminService = {
     async getAllInsurances() {
         try {
             const response = await api.get('/admin/insurances');
-            return response.data;
+            // Нормализуем данные - убедимся, что они имеют правильную структуру
+            return response.data && response.data.data ? response.data.data :
+                (Array.isArray(response.data) ? response.data : []);
         } catch (error) {
+            console.error('Error fetching insurances:', error);
             throw error;
         }
     },
@@ -18,6 +21,7 @@ const adminService = {
             const response = await api.put(`/admin/insurances/${id}`, data);
             return response.data;
         } catch (error) {
+            console.error('Error updating insurance:', error);
             throw error;
         }
     },
@@ -26,9 +30,14 @@ const adminService = {
     async getAllProducts() {
         try {
             const response = await api.get('/admin/products');
-            return response.data;
+            // Нормализуем данные - убедимся, что они имеют правильную структуру
+            return response.data && response.data.data ?
+                { data: response.data.data } :
+                { data: Array.isArray(response.data) ? response.data : [] };
         } catch (error) {
-            throw error;
+            console.error('Error fetching products:', error);
+            // Возвращаем пустой массив в случае ошибки
+            return { data: [] };
         }
     },
 
@@ -38,6 +47,7 @@ const adminService = {
             const response = await api.post('/admin/products', productData);
             return response.data;
         } catch (error) {
+            console.error('Error creating product:', error);
             throw error;
         }
     },
@@ -48,6 +58,7 @@ const adminService = {
             const response = await api.put(`/admin/products/${id}`, productData);
             return response.data;
         } catch (error) {
+            console.error('Error updating product:', error);
             throw error;
         }
     },
@@ -58,6 +69,7 @@ const adminService = {
             const response = await api.delete(`/admin/products/${id}`);
             return response.data;
         } catch (error) {
+            console.error('Error deleting product:', error);
             throw error;
         }
     },
@@ -68,6 +80,7 @@ const adminService = {
             const response = await api.post('/admin/initialize/products');
             return response.data;
         } catch (error) {
+            console.error('Error initializing products:', error);
             throw error;
         }
     },
@@ -78,6 +91,7 @@ const adminService = {
             const response = await api.post('/admin/initialize/admin');
             return response.data;
         } catch (error) {
+            console.error('Error creating default admin:', error);
             throw error;
         }
     }

@@ -8,128 +8,128 @@ import { FiCheck, FiX, FiShield, FiHeart, FiPackage } from 'react-icons/fi';
 
 // Стилизованные компоненты
 const PackagesContainer = styled.div`
-  margin-bottom: 2rem;
+    margin-bottom: 2rem;
 `;
 
 const PackageOptions = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1.5rem;
-  margin-bottom: 2rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
 `;
 
 const PackageOption = styled.div`
-  flex: 1;
-  min-width: 250px;
-  border: 2px solid ${props => props.selected ? 'var(--primary-color)' : 'var(--light-gray)'};
-  border-radius: var(--border-radius);
-  padding: 1.5rem;
-  background-color: ${props => props.selected ? 'rgba(0, 114, 163, 0.05)' : 'white'};
-  position: relative;
-  transition: all 0.3s ease;
-  cursor: pointer;
+    flex: 1;
+    min-width: 250px;
+    border: 2px solid ${props => props.selected ? 'var(--primary-color)' : 'var(--light-gray)'};
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    background-color: ${props => props.selected ? 'rgba(0, 114, 163, 0.05)' : 'white'};
+    position: relative;
+    transition: all 0.3s ease;
+    cursor: pointer;
 
-  &:hover {
-    border-color: ${props => props.selected ? 'var(--primary-color)' : 'var(--secondary-color)'};
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  }
+    &:hover {
+        border-color: ${props => props.selected ? 'var(--primary-color)' : 'var(--secondary-color)'};
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
 `;
 
 const PackageHeader = styled.div`
-  text-align: center;
-  margin-bottom: 1.5rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid var(--light-gray);
+    text-align: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--light-gray);
 `;
 
 const PackageTitle = styled.h3`
-  font-size: 1.5rem;
-  margin-bottom: 0.5rem;
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
 `;
 
 const PackagePrice = styled.div`
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: var(--primary-color);
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--primary-color);
 `;
 
 const PackagePricePeriod = styled.span`
-  font-size: 0.875rem;
-  color: #666;
+    font-size: 0.875rem;
+    color: #666;
 `;
 
 const PackageFeatures = styled.div`
-  margin-bottom: 1.5rem;
+    margin-bottom: 1.5rem;
 `;
 
 const PackageFeature = styled.div`
-  display: flex;
-  align-items: flex-start;
-  margin-bottom: 1rem;
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 1rem;
 `;
 
 const FeatureIcon = styled.div`
-  margin-right: 0.75rem;
-  font-size: 1.25rem;
-  color: ${props => props.color || 'var(--primary-color)'};
+    margin-right: 0.75rem;
+    font-size: 1.25rem;
+    color: ${props => props.color || 'var(--primary-color)'};
 `;
 
 const FeatureText = styled.div`
-  flex: 1;
+    flex: 1;
 `;
 
 const FeatureValue = styled.div`
-  font-weight: 500;
+    font-weight: 500;
 `;
 
 const StarsContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  margin-bottom: 0.5rem;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 0.5rem;
 `;
 
 const Star = styled.span`
-  color: ${props => props.$filled ? 'var(--primary-color)' : 'var(--light-gray)'};
-  font-size: 1.25rem;
+    color: ${props => props.$filled ? 'var(--primary-color)' : 'var(--light-gray)'};
+    font-size: 1.25rem;
 `;
 
 const RadioButton = styled.input`
-  position: absolute;
-  opacity: 0;
-  width: 0;
-  height: 0;
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
 `;
 
 const ButtonGroup = styled.div`
-  display: flex;
-  justify-content: space-between;
-  margin-top: 2rem;
+    display: flex;
+    justify-content: space-between;
+    margin-top: 2rem;
 `;
 
 const Button = styled.button`
-  background-color: var(--primary-color);
-  color: white;
-  border: none;
-  border-radius: var(--border-radius);
-  padding: 0.75rem 1.5rem;
-  font-size: 1rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.15s ease-in-out;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius);
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.15s ease-in-out;
 
-  &:hover {
-    background-color: var(--primary-hover);
-  }
+    &:hover {
+        background-color: var(--primary-hover);
+    }
 
-  &:disabled {
-    background-color: #6c757d;
-    cursor: not-allowed;
-  }
+    &:disabled {
+        background-color: #6c757d;
+        cursor: not-allowed;
+    }
 `;
 
 const LoadingContainer = styled.div`
-  text-align: center;
-  padding: 2rem 0;
+    text-align: center;
+    padding: 2rem 0;
 `;
 
 // Компонент выбора пакета страхования (шаг 3)
@@ -142,7 +142,8 @@ const PackageSelection = () => {
         pricing,
         loadingPricing,
         nextStep,
-        prevStep
+        prevStep,
+        availablePackages // Получаем из контекста
     } = useInsurance();
 
     const [packagePrices, setPackagePrices] = useState({
@@ -150,60 +151,84 @@ const PackageSelection = () => {
         dominant: 0,
         premiant: 0
     });
+    const [initialCalculationDone, setInitialCalculationDone] = useState(false);
+    // Локальный флаг для отслеживания необходимости пересчета
+    const [needsRecalculation, setNeedsRecalculation] = useState(false);
 
     const navigate = useNavigate();
 
-    // Расчет стоимости страховки при загрузке страницы
-    // useEffect(() => {
-    //     const calculatePrices = async () => {
-    //         try {
-    //             // Расчет для выбранного пакета
-    //             const pricingData = await calculateInsurance();
-    //
-    //             if (pricingData) {
-    //                 // Простая оценка для других пакетов (в реальном приложении нужно делать отдельные запросы)
-    //                 setPackagePrices({
-    //                     standard: Math.round(pricingData.totalPrice * 0.95),
-    //                     dominant: pricingData.totalPrice,
-    //                     premiant: Math.round(pricingData.totalPrice * 1.1)
-    //                 });
-    //             }
-    //         } catch (error) {
-    //             toast.error('Ошибка при расчете стоимости страховки');
-    //         }
-    //     };
-    //
-    //     if (vehicle) {
-    //         calculatePrices();
-    //     }
-    // }, [vehicle, calculateInsurance]);
-
-
+    // Расчет стоимости страховки при загрузке страницы - только один раз
     useEffect(() => {
         const calculatePrices = async () => {
-            try {
-                const pricingData = await calculateInsurance();
-                if (!pricingData) return;
+            if (!vehicle) return;
 
-                setPackagePrices({
-                    standard: Math.round(pricingData.totalPrice * 0.95),
-                    dominant: pricingData.totalPrice,
-                    premiant: Math.round(pricingData.totalPrice * 1.1)
-                });
+            try {
+                // Предварительный расчет цен для пакетов на основе их базовых цен
+                // Получаем базовые цены из доступных пакетов
+                const packageTypes = ['standard', 'dominant', 'premiant'];
+                const basePackagePrices = {};
+
+                // Найдем базовые цены из доступных пакетов
+                if (availablePackages && availablePackages.length > 0) {
+                    packageTypes.forEach(type => {
+                        const foundPackage = availablePackages.find(p => p.type === type);
+                        if (foundPackage && foundPackage.pricing && foundPackage.pricing.basePrice) {
+                            basePackagePrices[type] = foundPackage.pricing.basePrice;
+                        }
+                    });
+                }
+
+                // Если базовые цены не найдены, используем значения по умолчанию
+                if (!basePackagePrices.standard) basePackagePrices.standard = 15500;
+                if (!basePackagePrices.dominant) basePackagePrices.dominant = 17800;
+                if (!basePackagePrices.premiant) basePackagePrices.premiant = 19900;
+
+                // Расчет точной цены для выбранного пакета
+                const pricingData = await calculateInsurance();
+
+                if (pricingData) {
+                    // Расчет приблизительных цен для других пакетов на основе пропорций базовых цен
+                    const basePriceRatio = {
+                        standard: basePackagePrices.standard / basePackagePrices[selectedPackage],
+                        dominant: basePackagePrices.dominant / basePackagePrices[selectedPackage],
+                        premiant: basePackagePrices.premiant / basePackagePrices[selectedPackage]
+                    };
+
+                    // Устанавливаем цены всех пакетов, используя точную цену выбранного пакета
+                    // и приблизительные цены для остальных
+                    setPackagePrices({
+                        standard: Math.round(pricingData.totalPrice * basePriceRatio.standard),
+                        dominant: Math.round(pricingData.totalPrice * basePriceRatio.dominant),
+                        premiant: Math.round(pricingData.totalPrice * basePriceRatio.premiant)
+                    });
+
+                    // Обновляем цену выбранного пакета на точное значение
+                    setPackagePrices(prevPrices => ({
+                        ...prevPrices,
+                        [selectedPackage]: pricingData.totalPrice
+                    }));
+
+                    setInitialCalculationDone(true);
+                    setNeedsRecalculation(false); // Сбрасываем флаг после пересчета
+                }
             } catch (err) {
-                toast.error('Не удалось пересчитать цены пакетов');
+                console.error('Ошибка при расчете цен:', err);
+                toast.error('Не удалось рассчитать цены пакетов');
             }
         };
 
-        if (vehicle) {
+        // Запускаем расчет цен при первой загрузке или изменении выбранного пакета
+        if (vehicle && (!initialCalculationDone || needsRecalculation)) {
             calculatePrices();
         }
-    }, [vehicle, selectedPackage, calculateInsurance]);
-
+    }, [vehicle, selectedPackage, initialCalculationDone, needsRecalculation, calculateInsurance, availablePackages]);
 
     // Обработчик выбора пакета
     const handlePackageSelect = (packageType) => {
-        selectPackage(packageType);
+        if (packageType !== selectedPackage) {
+            selectPackage(packageType);
+            setNeedsRecalculation(true); // Устанавливаем флаг необходимости пересчета при смене пакета
+        }
     };
 
     // Обработчик кнопки "Продолжить"
@@ -219,7 +244,7 @@ const PackageSelection = () => {
     };
 
     // Если данные еще загружаются
-    if (loadingPricing) {
+    if (loadingPricing && !initialCalculationDone) {
         return (
             <LoadingContainer>
                 <h2>Расчет стоимости страховки...</h2>

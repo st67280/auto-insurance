@@ -312,11 +312,14 @@ const AdminProducts = () => {
         const fetchProducts = async () => {
             try {
                 setLoading(true);
-                const data = await adminService.getAllProducts();
-                setProducts(Array.isArray(data) ? data : []);
+                const response = await adminService.getAllProducts();
+                // Проверяем структуру ответа и нормализуем его
+                const productsData = response && response.data ? response.data : response;
+                setProducts(Array.isArray(productsData) ? productsData : []);
             } catch (error) {
                 toast.error('Ошибка при загрузке продуктов');
                 console.error(error);
+                setProducts([]); // Устанавливаем пустой массив в случае ошибки
             } finally {
                 setLoading(false);
             }
@@ -333,7 +336,8 @@ const AdminProducts = () => {
 
             // Загружаем обновленный список продуктов
             const response = await adminService.getAllProducts();
-            setProducts(response.data);
+            const productsData = response && response.data ? response.data : response;
+            setProducts(Array.isArray(productsData) ? productsData : []);
 
             toast.success('Базовые продукты успешно инициализированы');
         } catch (error) {
@@ -377,7 +381,30 @@ const AdminProducts = () => {
     const handleOpenEditModal = (product) => {
         setModalMode('edit');
         setCurrentProduct(product);
-        setFormData(product);
+
+        // Обеспечиваем правильную структуру данных формы
+        const preparedProduct = {
+            ...product,
+            features: product.features || {
+                propertyDamageLimit: 0,
+                healthDamageLimit: 0,
+                driverInsuranceAmount: 0,
+                personalItemsAmount: 0,
+                assistanceServices: true,
+                ownVehicleDamage: false,
+                replacementVehicle: false
+            },
+            pricing: product.pricing || {
+                basePrice: 0,
+                weightMultiplier: 1,
+                engineVolumeMultiplier: 1,
+                vehicleAgeMultiplier: 1,
+                ownershipCountMultiplier: 1,
+                electricVehicleDiscount: 0
+            }
+        };
+
+        setFormData(preparedProduct);
         setShowModal(true);
     };
 
@@ -393,27 +420,27 @@ const AdminProducts = () => {
 
         if (name.includes('features.')) {
             const featureField = name.split('.')[1];
-            setFormData({
-                ...formData,
+            setFormData(prevData => ({
+                ...prevData,
                 features: {
-                    ...formData.features,
+                    ...prevData.features,
                     [featureField]: type === 'checkbox' ? checked : (type === 'number' ? parseFloat(value) : value)
                 }
-            });
+            }));
         } else if (name.includes('pricing.')) {
             const pricingField = name.split('.')[1];
-            setFormData({
-                ...formData,
+            setFormData(prevData => ({
+                ...prevData,
                 pricing: {
-                    ...formData.pricing,
+                    ...prevData.pricing,
                     [pricingField]: type === 'checkbox' ? checked : (type === 'number' ? parseFloat(value) : value)
                 }
-            });
+            }));
         } else {
-            setFormData({
-                ...formData,
+            setFormData(prevData => ({
+                ...prevData,
                 [name]: type === 'checkbox' ? checked : value
-            });
+            }));
         }
     };
 
@@ -434,7 +461,8 @@ const AdminProducts = () => {
 
             // Загружаем обновленный список продуктов
             const response = await adminService.getAllProducts();
-            setProducts(response.data);
+            const productsData = response && response.data ? response.data : response;
+            setProducts(Array.isArray(productsData) ? productsData : []);
 
             handleCloseModal();
         } catch (error) {
@@ -499,6 +527,15 @@ const AdminProducts = () => {
         }
     };
 
+    // Безопасный доступ к свойствам объекта
+    const safeGetValue = (obj, path, defaultValue = '') => {
+        try {
+            return path.split('.').reduce((acc, key) => (acc && acc[key] !== undefined) ? acc[key] : defaultValue, obj);
+        } catch (e) {
+            return defaultValue;
+        }
+    };
+
     return (
         <Container>
             <Card>
@@ -508,7 +545,7 @@ const AdminProducts = () => {
                         <Button onClick={handleOpenCreateModal} style={{ marginRight: '0.5rem' }}>
                             <ButtonIcon>+</ButtonIcon> Новый продукт
                         </Button>
-                        <Button onClick={handleInitializeProducts} disabled={products.length > 0}>
+                        <Button onClick={handleInitializeProducts} disabled={products && products.length > 0}>
                             <ButtonIcon><FiPlay /></ButtonIcon> Инициализировать
                         </Button>
                     </div>
@@ -538,12 +575,12 @@ const AdminProducts = () => {
                         <tbody>
                         {products.map((product) => (
                             <TableRow key={product._id}>
-                                <TableCell>{product.name}</TableCell>
-                                <TableCell>{getTypeText(product.type)}</TableCell>
-                                <TableCell>{product.pricing.basePrice} Kč</TableCell>
+                                <TableCell>{safeGetValue(product, 'name')}</TableCell>
+                                <TableCell>{getTypeText(safeGetValue(product, 'type'))}</TableCell>
+                                <TableCell>{safeGetValue(product, 'pricing.basePrice', 0)} Kč</TableCell>
                                 <TableCell>
-                                    {(product.features.propertyDamageLimit / 1000000).toFixed(0)}/{
-                                    (product.features.healthDamageLimit / 1000000).toFixed(0)
+                                    {(safeGetValue(product, 'features.propertyDamageLimit', 0) / 1000000).toFixed(0)}/{
+                                    (safeGetValue(product, 'features.healthDamageLimit', 0) / 1000000).toFixed(0)
                                 } млн. Kč
                                 </TableCell>
                                 <TableCell>
@@ -631,7 +668,7 @@ const AdminProducts = () => {
                                     type="number"
                                     id="features.propertyDamageLimit"
                                     name="features.propertyDamageLimit"
-                                    value={formData.features.propertyDamageLimit}
+                                    value={safeGetValue(formData, 'features.propertyDamageLimit', 0)}
                                     onChange={handleInputChange}
                                     min="0"
                                     step="1000000"
@@ -644,7 +681,7 @@ const AdminProducts = () => {
                                     type="number"
                                     id="features.healthDamageLimit"
                                     name="features.healthDamageLimit"
-                                    value={formData.features.healthDamageLimit}
+                                    value={safeGetValue(formData, 'features.healthDamageLimit', 0)}
                                     onChange={handleInputChange}
                                     min="0"
                                     step="1000000"
@@ -657,7 +694,7 @@ const AdminProducts = () => {
                                     type="number"
                                     id="features.driverInsuranceAmount"
                                     name="features.driverInsuranceAmount"
-                                    value={formData.features.driverInsuranceAmount}
+                                    value={safeGetValue(formData, 'features.driverInsuranceAmount', 0)}
                                     onChange={handleInputChange}
                                     min="0"
                                     step="10000"
@@ -670,7 +707,7 @@ const AdminProducts = () => {
                                     type="number"
                                     id="features.personalItemsAmount"
                                     name="features.personalItemsAmount"
-                                    value={formData.features.personalItemsAmount}
+                                    value={safeGetValue(formData, 'features.personalItemsAmount', 0)}
                                     onChange={handleInputChange}
                                     min="0"
                                     step="1000"
@@ -684,7 +721,7 @@ const AdminProducts = () => {
                                     type="checkbox"
                                     id="features.assistanceServices"
                                     name="features.assistanceServices"
-                                    checked={formData.features.assistanceServices}
+                                    checked={safeGetValue(formData, 'features.assistanceServices', true)}
                                     onChange={handleInputChange}
                                 />
                                 Ассистентские услуги
@@ -695,7 +732,7 @@ const AdminProducts = () => {
                                     type="checkbox"
                                     id="features.ownVehicleDamage"
                                     name="features.ownVehicleDamage"
-                                    checked={formData.features.ownVehicleDamage}
+                                    checked={safeGetValue(formData, 'features.ownVehicleDamage', false)}
                                     onChange={handleInputChange}
                                 />
                                 Страхование при виновности в ДТП
@@ -706,7 +743,7 @@ const AdminProducts = () => {
                                     type="checkbox"
                                     id="features.replacementVehicle"
                                     name="features.replacementVehicle"
-                                    checked={formData.features.replacementVehicle}
+                                    checked={safeGetValue(formData, 'features.replacementVehicle', false)}
                                     onChange={handleInputChange}
                                 />
                                 Аренда замещающего ТС
@@ -722,7 +759,7 @@ const AdminProducts = () => {
                                     type="number"
                                     id="pricing.basePrice"
                                     name="pricing.basePrice"
-                                    value={formData.pricing.basePrice}
+                                    value={safeGetValue(formData, 'pricing.basePrice', 0)}
                                     onChange={handleInputChange}
                                     min="0"
                                     step="100"
@@ -735,7 +772,7 @@ const AdminProducts = () => {
                                     type="number"
                                     id="pricing.electricVehicleDiscount"
                                     name="pricing.electricVehicleDiscount"
-                                    value={formData.pricing.electricVehicleDiscount}
+                                    value={safeGetValue(formData, 'pricing.electricVehicleDiscount', 0)}
                                     onChange={handleInputChange}
                                     min="0"
                                     max="100"
@@ -748,7 +785,7 @@ const AdminProducts = () => {
                                     type="number"
                                     id="pricing.weightMultiplier"
                                     name="pricing.weightMultiplier"
-                                    value={formData.pricing.weightMultiplier}
+                                    value={safeGetValue(formData, 'pricing.weightMultiplier', 1)}
                                     onChange={handleInputChange}
                                     min="0"
                                     step="0.01"
@@ -761,7 +798,7 @@ const AdminProducts = () => {
                                     type="number"
                                     id="pricing.engineVolumeMultiplier"
                                     name="pricing.engineVolumeMultiplier"
-                                    value={formData.pricing.engineVolumeMultiplier}
+                                    value={safeGetValue(formData, 'pricing.engineVolumeMultiplier', 1)}
                                     onChange={handleInputChange}
                                     min="0"
                                     step="0.01"
@@ -774,7 +811,7 @@ const AdminProducts = () => {
                                     type="number"
                                     id="pricing.vehicleAgeMultiplier"
                                     name="pricing.vehicleAgeMultiplier"
-                                    value={formData.pricing.vehicleAgeMultiplier}
+                                    value={safeGetValue(formData, 'pricing.vehicleAgeMultiplier', 1)}
                                     onChange={handleInputChange}
                                     min="0"
                                     step="0.01"
@@ -787,7 +824,7 @@ const AdminProducts = () => {
                                     type="number"
                                     id="pricing.ownershipCountMultiplier"
                                     name="pricing.ownershipCountMultiplier"
-                                    value={formData.pricing.ownershipCountMultiplier}
+                                    value={safeGetValue(formData, 'pricing.ownershipCountMultiplier', 1)}
                                     onChange={handleInputChange}
                                     min="0"
                                     step="0.01"
@@ -801,7 +838,7 @@ const AdminProducts = () => {
                                     type="checkbox"
                                     id="active"
                                     name="active"
-                                    checked={formData.active}
+                                    checked={safeGetValue(formData, 'active', true)}
                                     onChange={handleInputChange}
                                 />
                                 Активен

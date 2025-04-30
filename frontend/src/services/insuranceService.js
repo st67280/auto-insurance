@@ -1,12 +1,15 @@
 import api from './api';
 
+// Кэш для результатов расчетов
+const calculationCache = new Map();
+
 // Сервис для работы со страховками
 const insuranceService = {
     // Получение доступных пакетов страхования
     async getAvailablePackages() {
         try {
             const response = await api.get('/insurance/products/available');
-            return response.data.data;
+            return response.data && response.data.data ? response.data.data : [];
         } catch (error) {
             console.error('Error fetching packages:', error);
 
@@ -70,34 +73,60 @@ const insuranceService = {
         }
     },
 
-    // Расчет стоимости страховки
+    // Генерация ключа кэша для расчета
+    _generateCacheKey(vehicleId, packageType, customerInfo, additionalServices) {
+        return `${vehicleId}_${packageType}_${JSON.stringify(customerInfo)}_${JSON.stringify(additionalServices)}`;
+    },
+
+// В функции calculateInsurance в insuranceService.js
+// Улучшенный расчет стоимости страховки
     async calculateInsurance(vehicleId, packageType, customerInfo, additionalServices) {
         try {
+            // Генерируем ключ кэша
+            const cacheKey = this._generateCacheKey(vehicleId, packageType, customerInfo, additionalServices);
+
+            // Проверяем наличие результата в кэше
+            if (calculationCache.has(cacheKey)) {
+                return calculationCache.get(cacheKey);
+            }
+
+            // Если в кэше нет, делаем запрос к API
             const response = await api.post('/insurance/calculate', {
                 vehicleId,
                 packageType,
                 customerInfo,
                 additionalServices
             });
-            return response.data;
+
+            const result = response.data && response.data.data ? response.data.data : response.data;
+
+            // Сохраняем результат в кэш
+            calculationCache.set(cacheKey, result);
+
+            return result;
         } catch (error) {
             console.error('Error calculating insurance:', error);
 
             // Заглушка для тестирования без API
+            // Получаем базовую цену для выбранного пакета
             let basePrice = 0;
             switch (packageType) {
                 case 'standard':
-                    basePrice = 19229;
+                    basePrice = 15500;  // Снижено с 19229
                     break;
                 case 'dominant':
-                    basePrice = 20189;
+                    basePrice = 17800;  // Снижено с 20189
                     break;
                 case 'premiant':
-                    basePrice = 22305;
+                    basePrice = 19900;  // Снижено с 22305
                     break;
                 default:
-                    basePrice = 20000;
+                    basePrice = 18000;
             }
+
+            // Для транзитности между отображаемой и итоговой ценой
+            // добавим множители, которые точнее имитируют итоговую цену
+            // и делают ее более предсказуемой
 
             // Расчет цены дополнительных услуг
             let additionalServicesPrice = 0;
@@ -106,26 +135,39 @@ const insuranceService = {
                     additionalServicesPrice += additionalServices.havarijniPojisteni.vehiclePrice * 0.05;
                 }
                 if (additionalServices.pojisteniOdcizeni && additionalServices.pojisteniOdcizeni.enabled) {
-                    additionalServicesPrice += 1500;
+                    additionalServicesPrice += 1200;  // Изменено с 1500
                 }
                 if (additionalServices.zivelniPojisteni && additionalServices.zivelniPojisteni.enabled) {
-                    additionalServicesPrice += 444;
+                    additionalServicesPrice += 400;  // Изменено с 444
                 }
                 if (additionalServices.stetSeZveri && additionalServices.stetSeZveri.enabled) {
-                    additionalServicesPrice += 920;
+                    additionalServicesPrice += 900;  // Изменено с 920
                 }
             }
 
-            // Моковые скидки
-            const discounts = customerInfo.drivingExperience > 5 ? 1000 : 0;
+            // Изменены и упрощены скидки для лучшей предсказуемости
+            const discounts = customerInfo && customerInfo.drivingExperience > 5 ? 800 : 0;
 
-            return {
+            const mockResult = {
                 basePrice: basePrice,
                 additionalServicesPrice: Math.round(additionalServicesPrice),
                 discounts: discounts,
                 totalPrice: Math.round(basePrice + additionalServicesPrice - discounts)
             };
+
+            // Создаем ключ кэша для заглушки
+            const mockCacheKey = this._generateCacheKey(vehicleId, packageType, customerInfo, additionalServices);
+
+            // Сохраняем заглушку в кэш
+            calculationCache.set(mockCacheKey, mockResult);
+
+            return mockResult;
         }
+    },
+
+    // Сброс кэша расчетов
+    clearCalculationCache() {
+        calculationCache.clear();
     },
 
     // Создание новой страховки
@@ -166,4 +208,5 @@ const insuranceService = {
     }
 };
 
+// Экспорт сервиса
 export default insuranceService;

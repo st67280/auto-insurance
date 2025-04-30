@@ -16,31 +16,67 @@ const vehicleController = {
                 });
             }
 
-            // Используем заглушку для тестирования без API
-            // В реальном проекте использовать vehicleService.getVehicleInfoByVin(vin)
-            let vehicle;
-            try {
-                vehicle = await vehicleService.getMockVehicleInfoByVin(vin);
-            } catch (err) {
-                // если дубликат, просто вернём уже записанное
-                if (err.code === 11000) {
-                    vehicle = await Vehicle.findOne({ vin });
-                } else {
-                    throw err;
-                }
+            // Проверяем, есть ли уже такая машина в базе данных
+            let vehicle = await Vehicle.findOne({ vin });
+
+            // Если машина уже есть в базе, возвращаем ее данные
+            if (vehicle) {
+                return res.status(200).json({
+                    success: true,
+                    data: vehicle
+                });
             }
-            res.status(200).json({ success: true, data: vehicle });
+
+            // Если машины нет в базе, запрашиваем данные из API
+            try {
+                const vehicleInfo = await vehicleService.getVehicleInfoByVin(vin);
+
+                // Парсим и преобразуем данные из API в нашу модель данных
+                const vehicleData = vehicleInfo.Data;
+
+                // Преобразуем дату регистрации в год выпуска
+                const registrationYear = vehicleData.DatumPrvniRegistrace
+                    ? new Date(vehicleData.DatumPrvniRegistrace).getFullYear()
+                    : null;
+
+                // Создаем новую запись в базе данных
+                vehicle = new Vehicle({
+                    vin: vin,
+                    type: determineVehicleType(vehicleData.VozidloDruh),
+                    isElectric: vehicleData.VozidloElektricke === "ANO",
+                    brand: vehicleData.TovarniZnacka,
+                    model: vehicleData.ObchodniOznaceni,
+                    year: registrationYear,
+                    engineVolume: vehicleData.MotorZdvihObjem,
+                    weight: vehicleData.HmotnostiProvozni,
+                    ownersCount: vehicleData.PocetVlastniku,
+                    apiData: vehicleData // Сохраняем оригинальные данные из API
+                });
+
+                await vehicle.save();
+                return res.status(200).json({
+                    success: true,
+                    data: vehicle
+                });
+            } catch (error) {
+                console.error('Error fetching vehicle info from API:', error);
+                return res.status(500).json({
+                    success: false,
+                    message: 'Не удалось получить информацию о транспортном средстве из API',
+                    error: error.message
+                });
+            }
         } catch (error) {
-            console.error('Ошибка при получении ТС по VIN:', error);
-            res.status(500).json({
+            console.error('Error in getVehicleByVin:', error);
+            return res.status(500).json({
                 success: false,
-                message: 'Не удалось получить информацию о транспортном средстве',
+                message: 'Не удалось обработать запрос',
                 error: error.message
             });
         }
     },
 
-    // Создание нового транспортного средства вручную (без API)
+    // Создание нового транспортного средства вручную
     async createVehicle(req, res) {
         try {
             const {
@@ -126,5 +162,16 @@ const vehicleController = {
         }
     }
 };
+
+// Вспомогательная функция для определения типа транспортного средства
+function determineVehicleType(vehicleTypeFromApi) {
+    const typeMapping = {
+        'OSOBNÍ AUTOMOBIL': 'car',
+        'MOTOCYKL': 'motorcycle',
+        'PŘÍPOJNÉ VOZIDLO': 'trailer'
+    };
+
+    return typeMapping[vehicleTypeFromApi] || 'car';
+}
 
 module.exports = vehicleController;

@@ -51,10 +51,13 @@ const insuranceService = {
 
     // Расчет базовой стоимости страховки
     calculateBasePrice(vehicle, product, customerInfo) {
+        // Базовая цена из продукта
         let basePrice = product.pricing.basePrice;
 
         // Учет веса ТС
-        basePrice *= (vehicle.weight / 1000) * product.pricing.weightMultiplier;
+        if (vehicle.weight) {
+            basePrice *= (vehicle.weight / 1000) * product.pricing.weightMultiplier;
+        }
 
         // Учет объема двигателя (если не электромобиль)
         if (!vehicle.isElectric && vehicle.engineVolume) {
@@ -82,6 +85,16 @@ const insuranceService = {
         if (customerInfo && customerInfo.accidentsCount) {
             basePrice *= (1 + (customerInfo.accidentsCount * 0.15));
         }
+
+        console.log('Расчет базовой цены:', {
+            basePrice: Math.round(basePrice),
+            weight: vehicle.weight,
+            engineVolume: vehicle.engineVolume,
+            year: vehicle.year,
+            ownersCount: vehicle.ownersCount,
+            drivingExperience: customerInfo?.drivingExperience,
+            accidentsCount: customerInfo?.accidentsCount
+        });
 
         return Math.round(basePrice);
     },
