@@ -18,12 +18,18 @@ const vehicleController = {
 
             // Используем заглушку для тестирования без API
             // В реальном проекте использовать vehicleService.getVehicleInfoByVin(vin)
-            const vehicle = await vehicleService.getMockVehicleInfoByVin(vin);
-
-            res.status(200).json({
-                success: true,
-                data: vehicle
-            });
+            let vehicle;
+            try {
+                vehicle = await vehicleService.getMockVehicleInfoByVin(vin);
+            } catch (err) {
+                // если дубликат, просто вернём уже записанное
+                if (err.code === 11000) {
+                    vehicle = await Vehicle.findOne({ vin });
+                } else {
+                    throw err;
+                }
+            }
+            res.status(200).json({ success: true, data: vehicle });
         } catch (error) {
             console.error('Ошибка при получении ТС по VIN:', error);
             res.status(500).json({

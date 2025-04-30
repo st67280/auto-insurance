@@ -30,9 +30,9 @@ const Insurance = () => {
     };
 
     // Перенаправление на соответствующую страницу в зависимости от текущего шага
-    if (window.location.pathname === '/insurance') {
-        return <Navigate to={stepRoutes[currentStep]} replace />;
-    }
+    // if (window.location.pathname === '/insurance') {
+    //     return <Navigate to={stepRoutes[currentStep]} replace />;
+    // }
 
     return (
         <InsuranceContainer>

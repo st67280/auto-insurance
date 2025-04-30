@@ -26,7 +26,10 @@ const StepsWrapper = styled.div`
   }
 `;
 
-const Step = styled.div`
+const Step = styled.div.withConfig({
+      // не шлем в DOM эти пропсы
+      shouldForwardProp: (prop) => !['active', 'completed'].includes(prop)
+    })`
   width: 40px;
   height: 40px;
   border-radius: 50%;

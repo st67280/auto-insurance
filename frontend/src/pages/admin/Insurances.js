@@ -249,7 +249,8 @@ const AdminInsurances = () => {
             try {
                 setLoading(true);
                 const response = await adminService.getAllInsurances();
-                setInsurances(response.data);
+                setInsurances(response);
+
             } catch (error) {
                 toast.error('Ошибка при загрузке страховок');
                 console.error(error);

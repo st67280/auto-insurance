@@ -89,7 +89,7 @@ const StarsContainer = styled.div`
 `;
 
 const Star = styled.span`
-  color: ${props => props.filled ? 'var(--primary-color)' : 'var(--light-gray)'};
+  color: ${props => props.$filled ? 'var(--primary-color)' : 'var(--light-gray)'};
   font-size: 1.25rem;
 `;
 
@@ -154,29 +154,52 @@ const PackageSelection = () => {
     const navigate = useNavigate();
 
     // Расчет стоимости страховки при загрузке страницы
+    // useEffect(() => {
+    //     const calculatePrices = async () => {
+    //         try {
+    //             // Расчет для выбранного пакета
+    //             const pricingData = await calculateInsurance();
+    //
+    //             if (pricingData) {
+    //                 // Простая оценка для других пакетов (в реальном приложении нужно делать отдельные запросы)
+    //                 setPackagePrices({
+    //                     standard: Math.round(pricingData.totalPrice * 0.95),
+    //                     dominant: pricingData.totalPrice,
+    //                     premiant: Math.round(pricingData.totalPrice * 1.1)
+    //                 });
+    //             }
+    //         } catch (error) {
+    //             toast.error('Ошибка при расчете стоимости страховки');
+    //         }
+    //     };
+    //
+    //     if (vehicle) {
+    //         calculatePrices();
+    //     }
+    // }, [vehicle, calculateInsurance]);
+
+
     useEffect(() => {
         const calculatePrices = async () => {
             try {
-                // Расчет для выбранного пакета
                 const pricingData = await calculateInsurance();
+                if (!pricingData) return;
 
-                if (pricingData) {
-                    // Простая оценка для других пакетов (в реальном приложении нужно делать отдельные запросы)
-                    setPackagePrices({
-                        standard: Math.round(pricingData.totalPrice * 0.95),
-                        dominant: pricingData.totalPrice,
-                        premiant: Math.round(pricingData.totalPrice * 1.1)
-                    });
-                }
-            } catch (error) {
-                toast.error('Ошибка при расчете стоимости страховки');
+                setPackagePrices({
+                    standard: Math.round(pricingData.totalPrice * 0.95),
+                    dominant: pricingData.totalPrice,
+                    premiant: Math.round(pricingData.totalPrice * 1.1)
+                });
+            } catch (err) {
+                toast.error('Не удалось пересчитать цены пакетов');
             }
         };
 
         if (vehicle) {
             calculatePrices();
         }
-    }, [vehicle, calculateInsurance]);
+    }, [vehicle, selectedPackage, calculateInsurance]);
+
 
     // Обработчик выбора пакета
     const handlePackageSelect = (packageType) => {
@@ -218,9 +241,9 @@ const PackageSelection = () => {
                     >
                         <PackageHeader>
                             <StarsContainer>
-                                <Star filled>★</Star>
-                                <Star filled>★</Star>
-                                <Star filled>★</Star>
+                                <Star $filled>★</Star>
+                                <Star $filled>★</Star>
+                                <Star $filled>★</Star>
                                 <Star>★</Star>
                                 <Star>★</Star>
                             </StarsContainer>
@@ -322,10 +345,10 @@ const PackageSelection = () => {
                     >
                         <PackageHeader>
                             <StarsContainer>
-                                <Star filled>★</Star>
-                                <Star filled>★</Star>
-                                <Star filled>★</Star>
-                                <Star filled>★</Star>
+                                <Star $filled>★</Star>
+                                <Star $filled>★</Star>
+                                <Star $filled>★</Star>
+                                <Star $filled>★</Star>
                                 <Star>★</Star>
                             </StarsContainer>
                             <PackageTitle>Dominant</PackageTitle>
@@ -426,11 +449,11 @@ const PackageSelection = () => {
                     >
                         <PackageHeader>
                             <StarsContainer>
-                                <Star filled>★</Star>
-                                <Star filled>★</Star>
-                                <Star filled>★</Star>
-                                <Star filled>★</Star>
-                                <Star filled>★</Star>
+                                <Star $filled>★</Star>
+                                <Star $filled>★</Star>
+                                <Star $filled>★</Star>
+                                <Star $filled>★</Star>
+                                <Star $filled>★</Star>
                             </StarsContainer>
                             <PackageTitle>Premiant</PackageTitle>
                             <PackagePrice>

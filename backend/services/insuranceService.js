@@ -7,6 +7,10 @@ const insuranceService = {
     // Расчет стоимости страховки
     async calculateInsurance(vehicleId, packageType, customerInfo, additionalServices) {
         try {
+            const mongoose = require('mongoose');
+            if (!mongoose.Types.ObjectId.isValid(vehicleId)) {
+                throw new Error('Некорректный ID транспортного средства');
+            }
             // Получаем информацию о ТС и продукте
             const vehicle = await Vehicle.findById(vehicleId);
             if (!vehicle) {

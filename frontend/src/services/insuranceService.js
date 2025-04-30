@@ -6,7 +6,7 @@ const insuranceService = {
     async getAvailablePackages() {
         try {
             const response = await api.get('/insurance/products/available');
-            return response.data;
+            return response.data.data;
         } catch (error) {
             console.error('Error fetching packages:', error);
 

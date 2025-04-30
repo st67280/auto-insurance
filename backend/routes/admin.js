@@ -3,6 +3,10 @@ const router = express.Router();
 const adminController = require('../controllers/adminController');
 const { protect, authorize } = require('../middleware/auth');
 
+
+router.post('/initialize/admin', adminController.createDefaultAdmin);
+router.post('/initialize/products', adminController.initializeProducts);
+
 // Применяем middleware для всех маршрутов
 router.use(protect);
 router.use(authorize('admin'));
@@ -25,10 +29,5 @@ router.put('/products/:id', adminController.updateProduct);
 // Удаление страхового продукта
 router.delete('/products/:id', adminController.deleteProduct);
 
-// Инициализация базовых продуктов
-router.post('/initialize/products', adminController.initializeProducts);
-
-// Создание администратора по умолчанию
-router.post('/initialize/admin', adminController.createDefaultAdmin);
 
 module.exports = router;

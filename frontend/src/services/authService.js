@@ -5,8 +5,10 @@ const authService = {
     // Авторизация пользователя
     async login(username, password) {
         try {
-            const response = await api.post('/auth/login', { username, password });
-            return response.data;
+            //const response = await api.post('/auth/login', { username, password });
+            const data = await api.post('/auth/login', { username, password });
+            console.log('>>> login data =', data);
+            return data;
         } catch (error) {
             console.error('Error during login:', error);
 
@@ -32,8 +34,9 @@ const authService = {
     // Получение информации о текущем пользователе
     async getMe() {
         try {
-            const response = await api.get('/auth/me');
-            return response.data.user;
+            const data = await api.get('/auth/me');
+            console.log('>>> getMe data =', data);
+            return data.user;
         } catch (error) {
             console.error('Error fetching user info:', error);
 

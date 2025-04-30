@@ -216,19 +216,19 @@ const Summary = () => {
     const navigate = useNavigate();
 
     // Пересчитываем стоимость страховки при загрузке страницы
-    useEffect(() => {
-        const recalculatePricing = async () => {
-            try {
-                await calculateInsurance();
-            } catch (error) {
-                toast.error('Ошибка при расчете стоимости страховки');
-            }
-        };
-
-        if (!pricing && vehicle) {
-            recalculatePricing();
-        }
-    }, [vehicle, pricing, calculateInsurance]);
+    // useEffect(() => {
+    //     const recalculatePricing = async () => {
+    //         try {
+    //             await calculateInsurance();
+    //         } catch (error) {
+    //             toast.error('Ошибка при расчете стоимости страховки');
+    //         }
+    //     };
+    //
+    //     if (!pricing && vehicle) {
+    //         recalculatePricing();
+    //     }
+    // }, []);
 
     // Получаем информацию о типе транспортного средства
     const getVehicleTypeText = () => {

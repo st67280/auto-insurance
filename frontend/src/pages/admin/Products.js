@@ -312,8 +312,8 @@ const AdminProducts = () => {
         const fetchProducts = async () => {
             try {
                 setLoading(true);
-                const response = await adminService.getAllProducts();
-                setProducts(response.data);
+                const data = await adminService.getAllProducts();
+                setProducts(Array.isArray(data) ? data : []);
             } catch (error) {
                 toast.error('Ошибка при загрузке продуктов');
                 console.error(error);
