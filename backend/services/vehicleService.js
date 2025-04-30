@@ -7,7 +7,7 @@ const vehicleService = {
     // Получение информации о ТС по VIN коду из внешнего API
     async getVehicleInfoByVin(vin) {
         try {
-            // Проверка кэша - возможно у нас уже есть информация об этом VIN
+            // 1) Сначала проверяем, не закеширован ли уже этот VIN в базе
             const existingVehicle = await Vehicle.findOne({ vin });
             if (existingVehicle) {
                 return {
@@ -16,22 +16,17 @@ const vehicleService = {
                 };
             }
 
-            // Если в кэше нет, запрашиваем информацию из внешнего API
-            const apiUrl = `${config.vehicleApiUrl}?vin=${vin}`;
-            console.log(`Запрос к API по VIN: ${vin}, URL: ${apiUrl}`);
-
-            // Исправлено: API key передается в параметре apiKey вместо X-Api-Key заголовка
-            const response = await axios.get(apiUrl, {
-                headers: {
-                    'apiKey': config.vehicleApiKey  // Изменен формат заголовка
-                }
+            // 2) Если нет — делаем реальный запрос в API, передавая VIN как параметр
+            // и кладя API-ключ в заголовок api_key
+            console.log(`Запрос к API по VIN: ${vin}`);
+            const response = await axios.get(config.vehicleApiUrl, {
+                params: { vin },
+                headers: { api_key: config.vehicleApiKey }
             });
-
             console.log('Ответ от API:', JSON.stringify(response.data, null, 2));
 
-            // Проверка ответа от API
+            // 3) Если всё ок — сохраняем в кеш и возвращаем
             if (response.data && response.data.Status === 1 && response.data.Data) {
-                // Сохраняем данные в кэш для будущих запросов
                 await this.saveVehicleData(vin, response.data);
                 return response.data;
             } else {
@@ -46,29 +41,24 @@ const vehicleService = {
     // Сохранение данных о ТС в базу данных
     async saveVehicleData(vin, apiData) {
         try {
-            // Проверяем, существует ли уже запись для данного VIN
-            let vehicle = await Vehicle.findOne({ vin });
+            const update = {
+                apiData: apiData.Data,
+                lastUpdated: new Date(),
+                type: this.determineVehicleType(apiData.Data.DruhVozidla),
+                brand: apiData.Data.TovarniZnacka,
+                model: apiData.Data.ObchodniOznaceni,
+                year: new Date(apiData.Data.DatumPrvniRegistrace).getFullYear(),
+                engineVolume: apiData.Data.MotorZdvihObjem,
+                weight: apiData.Data.HmotnostiProvozni,
+                ownersCount: apiData.Data.PocetVlastniku
+            };
 
-            if (vehicle) {
-                // Обновляем существующую запись
-                vehicle.apiData = apiData.Data;
-                vehicle.lastUpdated = new Date();
-                await vehicle.save();
-            } else {
-                // Создаем новую запись
-                vehicle = new Vehicle({
-                    vin,
-                    apiData: apiData.Data,
-                    type: this.determineVehicleType(apiData.Data.DruhVozidla),
-                    brand: apiData.Data.TovarniZnacka,
-                    model: apiData.Data.ObchodniOznaceni,
-                    year: new Date(apiData.Data.DatumPrvniRegistrace).getFullYear(),
-                    engineVolume: apiData.Data.MotorZdvihObjem,
-                    weight: apiData.Data.HmotnostiProvozni,
-                    ownersCount: apiData.Data.PocetVlastniku
-                });
-                await vehicle.save();
-            }
+            // upsert: если документ с таким vin есть – обновить, иначе – создать
+            const vehicle = await Vehicle.findOneAndUpdate(
+                { vin },
+                update,
+                { upsert: true, new: true, setDefaultsOnInsert: true }
+            );
 
             return vehicle;
         } catch (error) {
