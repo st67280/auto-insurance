@@ -78,27 +78,26 @@ const Home = () => {
             <Hero>
                 <div className="container">
                     <HeroContent>
-                        <HeroTitle>Надежная страховка для вашего автомобиля</HeroTitle>
+                        <HeroTitle>Reliable Insurance for Your Car</HeroTitle>
                         <HeroText>
-                            Оформите полис автострахования онлайн за несколько минут и получите лучшие условия и защиту
-                            для вашего транспортного средства.
+                            Get car insurance online in just a few minutes and receive the best conditions and protection for your vehicle.
                         </HeroText>
-                        <HeroButton to="/insurance">Рассчитать стоимость</HeroButton>
+                        <HeroButton to="/insurance">Calculate Price</HeroButton>
                     </HeroContent>
                 </div>
             </Hero>
 
             <div className="container">
-                <h2 className="text-center mb-4">Почему выбирают нас</h2>
+                <h2 className="text-center mb-4">Why Choose Us</h2>
 
                 <Features>
                     <Feature>
                         <FeatureIcon>
                             <FiShield />
                         </FeatureIcon>
-                        <FeatureTitle>Надежная защита</FeatureTitle>
+                        <FeatureTitle>Reliable Protection</FeatureTitle>
                         <FeatureText>
-                            Мы предлагаем комплексную защиту вашего автомобиля от всех видов рисков.
+                            We offer comprehensive protection for your car against all types of risks.
                         </FeatureText>
                     </Feature>
 
@@ -106,9 +105,9 @@ const Home = () => {
                         <FeatureIcon>
                             <FiTruck />
                         </FeatureIcon>
-                        <FeatureTitle>Для любых автомобилей</FeatureTitle>
+                        <FeatureTitle>For Any Vehicle</FeatureTitle>
                         <FeatureText>
-                            Оформите страховку для легковых автомобилей, мотоциклов и прицепов.
+                            Get insurance for cars, motorcycles, and trailers.
                         </FeatureText>
                     </Feature>
 
@@ -116,9 +115,9 @@ const Home = () => {
                         <FeatureIcon>
                             <FiDollarSign />
                         </FeatureIcon>
-                        <FeatureTitle>Выгодные условия</FeatureTitle>
+                        <FeatureTitle>Best Conditions</FeatureTitle>
                         <FeatureText>
-                            Мы предлагаем конкурентные цены и гибкие условия страхования.
+                            We offer competitive prices and flexible insurance terms.
                         </FeatureText>
                     </Feature>
 
@@ -126,16 +125,16 @@ const Home = () => {
                         <FeatureIcon>
                             <FiClock />
                         </FeatureIcon>
-                        <FeatureTitle>Быстрое оформление</FeatureTitle>
+                        <FeatureTitle>Quick Processing</FeatureTitle>
                         <FeatureText>
-                            Оформите полис онлайн всего за несколько минут без лишних документов.
+                            Get your policy online in just a few minutes without unnecessary paperwork.
                         </FeatureText>
                     </Feature>
                 </Features>
 
                 <div className="text-center mt-4">
                     <HeroButton to="/insurance" style={{ backgroundColor: 'var(--primary-color)', color: 'white' }}>
-                        Рассчитать страховку
+                        Calculate Insurance
                     </HeroButton>
                 </div>
             </div>

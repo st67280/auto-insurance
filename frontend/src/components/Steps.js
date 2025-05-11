@@ -63,11 +63,11 @@ const Steps = () => {
 
     // Определение шагов
     const steps = [
-        { number: 1, title: 'Транспортное средство' },
-        { number: 2, title: 'Данные страхователя' },
-        { number: 3, title: 'Выбор пакета' },
-        { number: 4, title: 'Дополнительные услуги' },
-        { number: 5, title: 'Оформление' }
+        { number: 1, title: 'Vehicle Info' },
+        { number: 2, title: 'Customer Info' },
+        { number: 3, title: 'Package Selection' },
+        { number: 4, title: 'Additional Services' },
+        { number: 5, title: 'Confirmation' }
     ];
 
     return (

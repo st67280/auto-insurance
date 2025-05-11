@@ -6,76 +6,76 @@ import styled from 'styled-components';
 
 // Стилизованные компоненты
 const LoginContainer = styled.div`
-  max-width: 400px;
-  margin: 2rem auto;
-  padding: 2rem;
-  background-color: white;
-  border-radius: var(--border-radius);
-  box-shadow: var(--box-shadow);
+    max-width: 400px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background-color: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
 `;
 
 const LoginTitle = styled.h2`
-  margin-bottom: 1.5rem;
-  text-align: center;
-  color: var(--primary-color);
+    margin-bottom: 1.5rem;
+    text-align: center;
+    color: var(--primary-color);
 `;
 
 const LoginForm = styled.form`
-  display: flex;
-  flex-direction: column;
+    display: flex;
+    flex-direction: column;
 `;
 
 const FormGroup = styled.div`
-  margin-bottom: 1.5rem;
+    margin-bottom: 1.5rem;
 `;
 
 const Label = styled.label`
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 500;
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
 `;
 
 const Input = styled.input`
-  width: 100%;
-  height: var(--input-height);
-  padding: 0.375rem 0.75rem;
-  font-size: 1rem;
-  border: 1px solid #ced4da;
-  border-radius: var(--border-radius);
-  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    width: 100%;
+    height: var(--input-height);
+    padding: 0.375rem 0.75rem;
+    font-size: 1rem;
+    border: 1px solid #ced4da;
+    border-radius: var(--border-radius);
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 
-  &:focus {
-    border-color: var(--secondary-color);
-    box-shadow: 0 0 0 0.2rem rgba(0, 178, 227, 0.25);
-    outline: none;
-  }
+    &:focus {
+        border-color: var(--secondary-color);
+        box-shadow: 0 0 0 0.2rem rgba(0, 178, 227, 0.25);
+        outline: none;
+    }
 `;
 
 const Button = styled.button`
-  background-color: var(--primary-color);
-  color: white;
-  border: none;
-  border-radius: var(--border-radius);
-  padding: 0.75rem 1rem;
-  font-size: 1rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.15s ease-in-out;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius);
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.15s ease-in-out;
 
-  &:hover {
-    background-color: var(--primary-hover);
-  }
+    &:hover {
+        background-color: var(--primary-hover);
+    }
 
-  &:disabled {
-    background-color: #6c757d;
-    cursor: not-allowed;
-  }
+    &:disabled {
+        background-color: #6c757d;
+        cursor: not-allowed;
+    }
 `;
 
 const ErrorMessage = styled.div`
-  color: var(--error-color);
-  margin-top: 1rem;
-  text-align: center;
+    color: var(--error-color);
+    margin-top: 1rem;
+    text-align: center;
 `;
 
 // Компонент страницы авторизации
@@ -93,7 +93,7 @@ const Login = () => {
 
         // Валидация формы
         if (!username || !password) {
-            setError('Пожалуйста, заполните все поля');
+            setError('Please fill in all fields');
             return;
         }
 
@@ -103,7 +103,7 @@ const Login = () => {
         try {
             const user = await login(username, password);
 
-            toast.success('Вы успешно вошли в систему');
+            toast.success('You have successfully logged in');
 
             // Перенаправление в зависимости от роли пользователя
             if (user.role === 'admin') {
@@ -113,7 +113,7 @@ const Login = () => {
             }
         } catch (err) {
             setError(err.message);
-            toast.error('Ошибка при входе в систему');
+            toast.error('Login failed');
         } finally {
             setLoading(false);
         }
@@ -121,11 +121,11 @@ const Login = () => {
 
     return (
         <LoginContainer>
-            <LoginTitle>Вход в систему</LoginTitle>
+            <LoginTitle>Login</LoginTitle>
 
             <LoginForm onSubmit={handleSubmit}>
                 <FormGroup>
-                    <Label htmlFor="username">Имя пользователя</Label>
+                    <Label htmlFor="username">Username</Label>
                     <Input
                         type="text"
                         id="username"
@@ -136,7 +136,7 @@ const Login = () => {
                 </FormGroup>
 
                 <FormGroup>
-                    <Label htmlFor="password">Пароль</Label>
+                    <Label htmlFor="password">Password</Label>
                     <Input
                         type="password"
                         id="password"
@@ -149,15 +149,15 @@ const Login = () => {
                 {error && <ErrorMessage>{error}</ErrorMessage>}
 
                 <Button type="submit" disabled={loading}>
-                    {loading ? 'Загрузка...' : 'Войти'}
+                    {loading ? 'Loading...' : 'Login'}
                 </Button>
             </LoginForm>
 
             <div className="text-center mt-3">
                 <p>
-                    Для доступа к админ-панели используйте:<br />
-                    Имя пользователя: <strong>admin</strong><br />
-                    Пароль: <strong>admin</strong>
+                    To access admin panel use:<br />
+                    Username: <strong>admin</strong><br />
+                    Password: <strong>admin</strong>
                 </p>
             </div>
         </LoginContainer>

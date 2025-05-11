@@ -174,27 +174,27 @@ const CustomerForm = () => {
         const newErrors = {};
 
         if (!customerInfo.name.trim()) {
-            newErrors.name = 'Пожалуйста, укажите имя';
+            newErrors.name = 'Please, enter name';
         }
 
         if (!customerInfo.surname.trim()) {
-            newErrors.surname = 'Пожалуйста, укажите фамилию';
+            newErrors.surname = 'Please, enter surname';
         }
 
         if (!customerInfo.address.trim()) {
-            newErrors.address = 'Пожалуйста, укажите адрес';
+            newErrors.address = 'Please, enter address';
         }
 
         const phoneRegex = /^\+?[0-9]{10,15}$/;
         if (!customerInfo.phone.trim()) {
-            newErrors.phone = 'Пожалуйста, укажите номер телефона';
+            newErrors.phone = 'Please, enter phone number';
         } else if (!phoneRegex.test(customerInfo.phone.trim())) {
-            newErrors.phone = 'Пожалуйста, укажите корректный номер телефона';
+            newErrors.phone = 'Please, enter correct phone number';
         }
 
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (customerInfo.email.trim() && !emailRegex.test(customerInfo.email.trim())) {
-            newErrors.email = 'Пожалуйста, укажите корректный email';
+            newErrors.email = 'Please, enter correct mail';
         }
 
         setErrors(newErrors);
@@ -209,7 +209,7 @@ const CustomerForm = () => {
             nextStep();
             navigate('/insurance/package');
         } else {
-            toast.error('Пожалуйста, исправьте ошибки в форме');
+            toast.error('Please, correct errors');
         }
     };
 
@@ -221,11 +221,11 @@ const CustomerForm = () => {
 
     return (
         <div>
-            <h2>Данные страхователя</h2>
+            <h2>Customer Information</h2>
 
             <Form onSubmit={handleSubmit}>
                 <FormGroup>
-                    <Label>Транспортное средство страхую как:</Label>
+                    <Label>I am insuring the vehicle as:</Label>
                     <CustomerTypeOptions>
                         <CustomerTypeOption selected={customerInfo.customerType === 'physical'}>
                             <RadioInput
@@ -235,7 +235,7 @@ const CustomerForm = () => {
                                 checked={customerInfo.customerType === 'physical'}
                                 onChange={() => handleCustomerTypeChange('physical')}
                             />
-                            Физическое лицо
+                            Individual
                         </CustomerTypeOption>
 
                         <CustomerTypeOption selected={customerInfo.customerType === 'entrepreneur'}>
@@ -246,7 +246,7 @@ const CustomerForm = () => {
                                 checked={customerInfo.customerType === 'entrepreneur'}
                                 onChange={() => handleCustomerTypeChange('entrepreneur')}
                             />
-                            Физическое лицо-предприниматель
+                            Sole Proprietor
                         </CustomerTypeOption>
 
                         <CustomerTypeOption selected={customerInfo.customerType === 'legal'}>
@@ -257,13 +257,13 @@ const CustomerForm = () => {
                                 checked={customerInfo.customerType === 'legal'}
                                 onChange={() => handleCustomerTypeChange('legal')}
                             />
-                            Юридическое лицо
+                            Legal Entity
                         </CustomerTypeOption>
                     </CustomerTypeOptions>
                 </FormGroup>
 
                 <FormGroup>
-                    <Label htmlFor="name">Имя*</Label>
+                    <Label htmlFor="name">First Name*</Label>
                     <Input
                         type="text"
                         id="name"
@@ -275,7 +275,7 @@ const CustomerForm = () => {
                 </FormGroup>
 
                 <FormGroup>
-                    <Label htmlFor="surname">Фамилия*</Label>
+                    <Label htmlFor="surname">Last Name*</Label>
                     <Input
                         type="text"
                         id="surname"
@@ -287,7 +287,7 @@ const CustomerForm = () => {
                 </FormGroup>
 
                 <FormGroup>
-                    <Label htmlFor="birthYear">Год рождения</Label>
+                    <Label htmlFor="birthYear">Year of Birth</Label>
                     <NumberInput>
                         <NumberButton
                             type="button"
@@ -306,7 +306,7 @@ const CustomerForm = () => {
                 </FormGroup>
 
                 <FormGroup>
-                    <Label htmlFor="address">Адрес*</Label>
+                    <Label htmlFor="address">Address*</Label>
                     <Input
                         type="text"
                         id="address"
@@ -318,7 +318,7 @@ const CustomerForm = () => {
                 </FormGroup>
 
                 <FormGroup>
-                    <Label htmlFor="phone">Телефон*</Label>
+                    <Label htmlFor="phone">Phone*</Label>
                     <Input
                         type="tel"
                         id="phone"
@@ -343,7 +343,7 @@ const CustomerForm = () => {
                 </FormGroup>
 
                 <FormGroup>
-                    <Label htmlFor="drivingExperience">Стаж вождения (лет)</Label>
+                    <Label htmlFor="drivingExperience">Driving Experience (years)</Label>
                     <NumberInput>
                         <NumberButton
                             type="button"
@@ -362,7 +362,7 @@ const CustomerForm = () => {
                 </FormGroup>
 
                 <FormGroup>
-                    <Label htmlFor="accidentsCount">Количество ДТП за последние 3 года</Label>
+                    <Label htmlFor="accidentsCount">Number of Accidents in Last 3 Years</Label>
                     <NumberInput>
                         <NumberButton
                             type="button"
@@ -382,10 +382,10 @@ const CustomerForm = () => {
 
                 <ButtonGroup>
                     <Button type="button" onClick={handleBack}>
-                        Назад
+                        Back
                     </Button>
                     <Button type="submit">
-                        Продолжить
+                        Continue
                     </Button>
                 </ButtonGroup>
             </Form>

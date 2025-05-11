@@ -3,22 +3,22 @@ import insuranceService from '../services/insuranceService';
 import vehicleService from '../services/vehicleService';
 import { toast } from 'react-toastify';
 
-// Создание контекста страхования
+// Create Insurance context
 export const InsuranceContext = createContext(null);
 
 export const InsuranceProvider = ({ children }) => {
-    // Состояние транспортного средства
+    // Vehicle state
     const [vehicle, setVehicle] = useState(null);
     const [vehicleType, setVehicleType] = useState('car'); // car, motorcycle, trailer
     const [isElectric, setIsElectric] = useState(false);
     const [loadingVehicle, setLoadingVehicle] = useState(false);
     const [vehicleError, setVehicleError] = useState(null);
 
-    // Состояние страхователя
+    // Customer state
     const [customerInfo, setCustomerInfo] = useState({
         name: '',
         surname: '',
-        birthYear: new Date().getFullYear() - 30, // Значение по умолчанию
+        birthYear: new Date().getFullYear() - 30, // Default value
         phone: '',
         email: '',
         address: '',
@@ -27,40 +27,30 @@ export const InsuranceProvider = ({ children }) => {
         accidentsCount: 0
     });
 
-    // Состояние страховки
+    // Insurance package state
     const [selectedPackage, setSelectedPackage] = useState('dominant');
     const [availablePackages, setAvailablePackages] = useState([]);
     const [loadingPackages, setLoadingPackages] = useState(false);
 
-    // Дополнительные услуги
+    // Additional services (keep original keys so component finds them)
     const [additionalServices, setAdditionalServices] = useState({
-        havarijniPojisteni: {
-            enabled: false,
-            vehiclePrice: 0
-        },
-        pojisteniOdcizeni: {
-            enabled: false
-        },
-        zivelniPojisteni: {
-            enabled: false
-        },
-        stetSeZveri: {
-            enabled: false
-        }
+        havarijniPojisteni: { enabled: false, vehiclePrice: 0 },
+        pojisteniOdcizeni: { enabled: false },
+        zivelniPojisteni: { enabled: false },
+        stetSeZveri: { enabled: false }
     });
 
-    // Расчет страховки
+    // Pricing state
     const [pricing, setPricing] = useState(null);
     const [loadingPricing, setLoadingPricing] = useState(false);
     const [pricingError, setPricingError] = useState(null);
-    // Флаг для отслеживания необходимости пересчета
     const [needRecalculation, setNeedRecalculation] = useState(false);
 
-    // Состояние процесса оформления
+    // Form process state
     const [currentStep, setCurrentStep] = useState(1);
     const [insurance, setInsurance] = useState(null);
 
-    // Загрузка доступных пакетов страхования при первой загрузке
+    // Load available packages on first render
     useEffect(() => {
         const loadPackages = async () => {
             try {
@@ -68,17 +58,16 @@ export const InsuranceProvider = ({ children }) => {
                 const packages = await insuranceService.getAvailablePackages();
                 setAvailablePackages(packages);
             } catch (err) {
-                console.error('Ошибка при загрузке пакетов:', err);
-                toast.error('Не удалось загрузить доступные пакеты страхования');
+                console.error('Error loading packages:', err);
+                toast.error('Failed to load available insurance packages');
             } finally {
                 setLoadingPackages(false);
             }
         };
-
         loadPackages();
     }, []);
 
-    // Функция получения информации о ТС по VIN
+    // Get vehicle info by VIN
     const getVehicleByVin = async (vin) => {
         setLoadingVehicle(true);
         setVehicleError(null);
@@ -87,24 +76,20 @@ export const InsuranceProvider = ({ children }) => {
             setVehicle(vehicleData);
             setVehicleType(vehicleData.type);
             setIsElectric(vehicleData.isElectric);
-
-            // Отмечаем необходимость пересчета цен
             setNeedRecalculation(true);
-            // Сбрасываем текущие цены
             setPricing(null);
-
             return vehicleData;
         } catch (err) {
-            console.error('Ошибка при получении ТС:', err);
-            setVehicleError(err.message || 'Не удалось получить информацию о ТС');
-            toast.error('Не удалось получить информацию о транспортном средстве');
+            console.error('Error fetching vehicle:', err);
+            setVehicleError(err.message || 'Failed to fetch vehicle information');
+            toast.error('Failed to fetch vehicle information');
             throw err;
         } finally {
             setLoadingVehicle(false);
         }
     };
 
-    // Функция создания ТС вручную
+    // Create vehicle manually
     const createVehicle = async (vehicleData) => {
         setLoadingVehicle(true);
         setVehicleError(null);
@@ -113,53 +98,45 @@ export const InsuranceProvider = ({ children }) => {
             setVehicle(newVehicle);
             setVehicleType(newVehicle.type);
             setIsElectric(newVehicle.isElectric);
-
-            // Отмечаем необходимость пересчета цен
             setNeedRecalculation(true);
-            // Сбрасываем текущие цены
             setPricing(null);
-
             return newVehicle;
         } catch (err) {
-            console.error('Ошибка при создании ТС:', err);
-            setVehicleError(err.message || 'Не удалось создать ТС');
-            toast.error('Не удалось создать транспортное средство');
+            console.error('Error creating vehicle:', err);
+            setVehicleError(err.message || 'Failed to create vehicle');
+            toast.error('Failed to create vehicle');
             throw err;
         } finally {
             setLoadingVehicle(false);
         }
     };
 
-    // Функция обновления информации о страхователе
+    // Update customer info
     const updateCustomerInfo = (info) => {
         setCustomerInfo({ ...customerInfo, ...info });
-        // Отмечаем необходимость пересчета цен
         setNeedRecalculation(true);
     };
 
-    // Функция выбора пакета страхования
+    // Select insurance package
     const selectPackage = (packageType) => {
         if (packageType !== selectedPackage) {
             setSelectedPackage(packageType);
-            // Отмечаем необходимость пересчета цен
             setNeedRecalculation(true);
         }
     };
 
-    // Функция обновления дополнительных услуг
+    // Update additional services (using original keys)
     const updateAdditionalServices = (services) => {
         setAdditionalServices({ ...additionalServices, ...services });
-        // Отмечаем необходимость пересчета цен
         setNeedRecalculation(true);
     };
 
-    // Функция расчета стоимости страховки
+    // Calculate insurance cost
     const calculateInsurance = async () => {
         if (!vehicle) {
-            setPricingError('Выберите транспортное средство');
+            setPricingError('Please select a vehicle');
             return null;
         }
-
         setLoadingPricing(true);
         setPricingError(null);
         try {
@@ -170,43 +147,38 @@ export const InsuranceProvider = ({ children }) => {
                 additionalServices
             );
             setPricing(pricingData);
-
-            // Сбрасываем флаг необходимости пересчета
             setNeedRecalculation(false);
-
             return pricingData;
         } catch (err) {
-            console.error('Ошибка при расчете страховки:', err);
-            setPricingError(err.message || 'Не удалось рассчитать стоимость страховки');
-            toast.error('Не удалось рассчитать стоимость страховки');
+            console.error('Error calculating insurance:', err);
+            setPricingError(err.message || 'Failed to calculate insurance cost');
+            toast.error('Failed to calculate insurance cost');
             throw err;
         } finally {
             setLoadingPricing(false);
         }
     };
 
-    // Автоматический пересчет цен при необходимости
+    // Auto-recalculate when needed
     useEffect(() => {
         const autoRecalculate = async () => {
             if (vehicle && needRecalculation && currentStep >= 3) {
                 try {
                     await calculateInsurance();
                 } catch (error) {
-                    console.error('Ошибка при автоматическом пересчете цен:', error);
+                    console.error('Error in auto-recalculation:', error);
                 }
             }
         };
-
         autoRecalculate();
     }, [vehicle, needRecalculation, currentStep]);
 
-    // Функция создания страховки
+    // Create insurance record
     const createInsurance = async () => {
         if (!vehicle || !customerInfo.name || !customerInfo.phone) {
-            toast.error('Заполните все обязательные поля');
+            toast.error('Please fill all required fields');
             return null;
         }
-
         try {
             const newInsurance = await insuranceService.createInsurance(
                 vehicle._id,
@@ -215,30 +187,22 @@ export const InsuranceProvider = ({ children }) => {
                 additionalServices
             );
             setInsurance(newInsurance);
-            toast.success('Страховка успешно создана');
+            toast.success('Insurance created successfully');
             return newInsurance;
         } catch (err) {
-            console.error('Ошибка при создании страховки:', err);
-            toast.error('Не удалось создать страховку');
+            console.error('Error creating insurance:', err);
+            toast.error('Failed to create insurance');
             throw err;
         }
     };
 
-    // Функция перехода к следующему шагу
-    const nextStep = () => {
-        setCurrentStep(currentStep + 1);
-    };
+    // Navigation between steps
+    const nextStep = () => setCurrentStep(currentStep + 1);
+    const prevStep = () => setCurrentStep(currentStep - 1);
 
-    // Функция перехода к предыдущему шагу
-    const prevStep = () => {
-        setCurrentStep(currentStep - 1);
-    };
-
-    // Функция сброса формы
+    // Reset form
     const resetForm = () => {
-        // Очищаем кэш расчетов
         insuranceService.clearCalculationCache();
-
         setVehicle(null);
         setVehicleType('car');
         setIsElectric(false);
@@ -255,19 +219,10 @@ export const InsuranceProvider = ({ children }) => {
         });
         setSelectedPackage('dominant');
         setAdditionalServices({
-            havarijniPojisteni: {
-                enabled: false,
-                vehiclePrice: 0
-            },
-            pojisteniOdcizeni: {
-                enabled: false
-            },
-            zivelniPojisteni: {
-                enabled: false
-            },
-            stetSeZveri: {
-                enabled: false
-            }
+            havarijniPojisteni: { enabled: false, vehiclePrice: 0 },
+            pojisteniOdcizeni: { enabled: false },
+            zivelniPojisteni: { enabled: false },
+            stetSeZveri: { enabled: false }
         });
         setPricing(null);
         setCurrentStep(1);
@@ -275,7 +230,7 @@ export const InsuranceProvider = ({ children }) => {
         setNeedRecalculation(false);
     };
 
-    // Предоставляемое значение контекста
+    // Context value
     const value = {
         vehicle,
         vehicleType,

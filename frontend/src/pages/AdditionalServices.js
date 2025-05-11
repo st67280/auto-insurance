@@ -6,7 +6,7 @@ import { toast } from 'react-toastify';
 import Tooltip from '../components/Tooltip';
 import { FiShield, FiAlertTriangle, FiCloud, FiTarget } from 'react-icons/fi';
 
-// Стилизованные компоненты
+// Styled components
 const Container = styled.div`
     margin-bottom: 2rem;
 `;
@@ -138,7 +138,7 @@ const Button = styled.button`
     }
 `;
 
-// Компонент выбора дополнительных услуг (шаг 4)
+// Additional Services Component (Step 4)
 const AdditionalServices = () => {
     const {
         vehicle,
@@ -156,7 +156,6 @@ const AdditionalServices = () => {
 
     const navigate = useNavigate();
 
-    // Инициализация состояний
     useEffect(() => {
         setLocalAdditionalServices(additionalServices);
     }, [additionalServices]);
@@ -165,7 +164,6 @@ const AdditionalServices = () => {
         setLocalPricing(pricing);
     }, [pricing]);
 
-    // Обработчик изменения дополнительных услуг
     const handleServiceChange = (service, value) => {
         const updatedServices = {
             ...localAdditionalServices,
@@ -174,72 +172,54 @@ const AdditionalServices = () => {
                 ...value
             }
         };
-
         setLocalAdditionalServices(updatedServices);
     };
 
-    // Обработчик сохранения и перехода к следующему шагу
     const handleContinue = async () => {
         try {
-            // Сохранение выбранных дополнительных услуг
             updateAdditionalServices(localAdditionalServices);
-
-            // Пересчет стоимости страховки с учетом дополнительных услуг
             await calculateInsurance();
-
-            // Переход к следующему шагу
             nextStep();
             navigate('/insurance/summary');
         } catch (error) {
-            toast.error('Ошибка при расчете стоимости страховки');
+            toast.error('Error calculating insurance price');
         }
     };
 
-    // Обработчик кнопки "Назад"
     const handleBack = () => {
-        // Сохранение выбранных дополнительных услуг
         updateAdditionalServices(localAdditionalServices);
-
         prevStep();
         navigate('/insurance/package');
     };
 
-    // Если нет информации о ТС или ценах
     if (!vehicle || !pricing) {
         return (
             <div>
-                <h2>Ошибка загрузки данных</h2>
-                <p>Пожалуйста, вернитесь к предыдущим шагам и проверьте введенные данные.</p>
+                <h2>Error Loading Data</h2>
+                <p>Please go back and verify your input</p>
                 <Button type="button" onClick={handleBack}>
-                    Назад
+                    Back
                 </Button>
             </div>
         );
     }
 
-    // Расчет примерной стоимости КАСКО (10% от стоимости автомобиля)
     const havarijniPrice = Math.round(localAdditionalServices.havarijniPojisteni.vehiclePrice * 0.05);
-
-    // Расчет цены страхования от угона (500 Kč на 1 тонну веса)
     const pojisteniOdcizeniPrice = Math.round(vehicle.weight * 0.5);
-
-    // Цены других дополнительных услуг
     const zivelniPrice = 444;
     const stetSeZveriPrice = 920;
 
     return (
         <Container>
-            <h2>Дополнительные услуги</h2>
+            <h2>Additional Services</h2>
 
             <Card>
-                <h3>Расширьте защиту вашего автомобиля</h3>
+                <h3>Extend Your Car Protection</h3>
                 <p>
-                    Добавьте дополнительные услуги к вашему полису для полной защиты вашего автомобиля
-                    и спокойствия на дороге.
+                    Add additional services to your policy for complete protection of your car and peace of mind on the road.
                 </p>
             </Card>
 
-            {/* КАСКО */}
             <ServiceOption>
                 <ServiceHeader>
                     <Checkbox
@@ -248,22 +228,22 @@ const AdditionalServices = () => {
                         checked={localAdditionalServices.havarijniPojisteni.enabled}
                         onChange={(e) => handleServiceChange('havarijniPojisteni', { enabled: e.target.checked })}
                     />
-                    <ServiceTitle>Хаварийное страхование (КАСКО)</ServiceTitle>
+                    <ServiceTitle>Comprehensive Coverage (KASKO)</ServiceTitle>
                     {localAdditionalServices.havarijniPojisteni.enabled ? (
-                        <ServicePrice>{havarijniPrice} Kč / год</ServicePrice>
+                        <ServicePrice>{havarijniPrice} Kč / year</ServicePrice>
                     ) : (
-                        <ServicePrice>Добавить</ServicePrice>
+                        <ServicePrice>Add</ServicePrice>
                     )}
-                    <Tooltip text="Страхование вашего автомобиля от повреждений при ДТП, стихийных бедствий, вандализма и других рисков" />
+                    <Tooltip text="Insurance for your car against accident damage, natural disasters, vandalism and other risks" />
                 </ServiceHeader>
 
                 <ServiceDescription>
-                    Комплексная защита вашего автомобиля от всех видов повреждений и угона.
+                    Comprehensive protection for your car against all types of damage and theft.
                 </ServiceDescription>
 
                 {localAdditionalServices.havarijniPojisteni.enabled && (
                     <FormGroup>
-                        <Label htmlFor="vehiclePrice">Стоимость автомобиля (Kč)</Label>
+                        <Label htmlFor="vehiclePrice">Vehicle Price (Kč)</Label>
                         <Input
                             type="number"
                             id="vehiclePrice"
@@ -277,7 +257,6 @@ const AdditionalServices = () => {
                 )}
             </ServiceOption>
 
-            {/* Страхование от угона */}
             <ServiceOption>
                 <ServiceHeader>
                     <Checkbox
@@ -286,21 +265,20 @@ const AdditionalServices = () => {
                         checked={localAdditionalServices.pojisteniOdcizeni.enabled}
                         onChange={(e) => handleServiceChange('pojisteniOdcizeni', { enabled: e.target.checked })}
                     />
-                    <ServiceTitle>Страхование от угона</ServiceTitle>
+                    <ServiceTitle>Theft Insurance</ServiceTitle>
                     {localAdditionalServices.pojisteniOdcizeni.enabled ? (
-                        <ServicePrice>{pojisteniOdcizeniPrice} Kč / год</ServicePrice>
+                        <ServicePrice>{pojisteniOdcizeniPrice} Kč / year</ServicePrice>
                     ) : (
-                        <ServicePrice>Добавить</ServicePrice>
+                        <ServicePrice>Add</ServicePrice>
                     )}
-                    <Tooltip text="Страхование на случай кражи вашего автомобиля" />
+                    <Tooltip text="Insurance in case your car is stolen" />
                 </ServiceHeader>
 
                 <ServiceDescription>
-                    Полное возмещение в случае кражи вашего автомобиля.
+                    Full indemnity in case your vehicle is stolen.
                 </ServiceDescription>
             </ServiceOption>
 
-            {/* Страхование от стихийных бедствий */}
             <ServiceOption>
                 <ServiceHeader>
                     <Checkbox
@@ -309,21 +287,20 @@ const AdditionalServices = () => {
                         checked={localAdditionalServices.zivelniPojisteni.enabled}
                         onChange={(e) => handleServiceChange('zivelniPojisteni', { enabled: e.target.checked })}
                     />
-                    <ServiceTitle>Страхование от стихийных бедствий</ServiceTitle>
+                    <ServiceTitle>Natural Disaster Insurance</ServiceTitle>
                     {localAdditionalServices.zivelniPojisteni.enabled ? (
-                        <ServicePrice>{zivelniPrice} Kč / год</ServicePrice>
+                        <ServicePrice>{zivelniPrice} Kč / year</ServicePrice>
                     ) : (
-                        <ServicePrice>Добавить</ServicePrice>
+                        <ServicePrice>Add</ServicePrice>
                     )}
-                    <Tooltip text="Страхование от повреждений, вызванных стихийными бедствиями (наводнение, град, ураган и т.д.)" />
+                    <Tooltip text="Insurance against damage caused by natural disasters (flood, hail, hurricane, etc.)" />
                 </ServiceHeader>
 
                 <ServiceDescription>
-                    Защита от повреждений, вызванных стихийными бедствиями, включая наводнение, град, ураган и др.
+                    Protection against damage caused by natural disasters including flood, hail, hurricane, etc.
                 </ServiceDescription>
             </ServiceOption>
 
-            {/* Страхование от столкновения с животными */}
             <ServiceOption>
                 <ServiceHeader>
                     <Checkbox
@@ -332,21 +309,21 @@ const AdditionalServices = () => {
                         checked={localAdditionalServices.stetSeZveri.enabled}
                         onChange={(e) => handleServiceChange('stetSeZveri', { enabled: e.target.checked })}
                     />
-                    <ServiceTitle>Страхование от столкновения с животными</ServiceTitle>
+                    <ServiceTitle>Animal Collision Insurance</ServiceTitle>
                     {localAdditionalServices.stetSeZveri.enabled ? (
-                        <ServicePrice>{stetSeZveriPrice} Kč / год</ServicePrice>
+                        <ServicePrice>{stetSeZveriPrice} Kč / year</ServicePrice>
                     ) : (
-                        <ServicePrice>Добавить</ServicePrice>
+                        <ServicePrice>Add</ServicePrice>
                     )}
-                    <Tooltip text="Страхование от повреждений, вызванных столкновением с животными" />
+                    <Tooltip text="Insurance against damage caused by collision with animals" />
                 </ServiceHeader>
 
                 <ServiceDescription>
-                    Возмещение ущерба при столкновении с дикими и домашними животными.
+                    Compensation for collisions with wild and domestic animals.
                 </ServiceDescription>
             </ServiceOption>
 
-            <h3>Преимущества дополнительного страхования</h3>
+            <h3>Advantages of Additional Insurance</h3>
 
             <AdditionalBenefits>
                 <Benefit>
@@ -354,8 +331,8 @@ const AdditionalServices = () => {
                         <FiShield />
                     </BenefitIcon>
                     <BenefitText>
-                        <BenefitTitle>Комплексная защита</BenefitTitle>
-                        <p>Защита от всех рисков при эксплуатации автомобиля</p>
+                        <BenefitTitle>Comprehensive Protection</BenefitTitle>
+                        <p>Protection against all risks during vehicle operation</p>
                     </BenefitText>
                 </Benefit>
 
@@ -364,8 +341,8 @@ const AdditionalServices = () => {
                         <FiAlertTriangle />
                     </BenefitIcon>
                     <BenefitText>
-                        <BenefitTitle>Защита от воров</BenefitTitle>
-                        <p>Полное возмещение в случае угона вашего автомобиля</p>
+                        <BenefitTitle>Theft Protection</BenefitTitle>
+                        <p>Full indemnity in case your vehicle is stolen</p>
                     </BenefitText>
                 </Benefit>
 
@@ -374,8 +351,8 @@ const AdditionalServices = () => {
                         <FiCloud />
                     </BenefitIcon>
                     <BenefitText>
-                        <BenefitTitle>Защита от стихии</BenefitTitle>
-                        <p>Спокойствие при любых погодных условиях</p>
+                        <BenefitTitle>Natural Disaster Protection</BenefitTitle>
+                        <p>Peace of mind in all weather conditions</p>
                     </BenefitText>
                 </Benefit>
 
@@ -384,22 +361,22 @@ const AdditionalServices = () => {
                         <FiTarget />
                     </BenefitIcon>
                     <BenefitText>
-                        <BenefitTitle>Защита от животных</BenefitTitle>
-                        <p>Возмещение ущерба при столкновении с животными</p>
+                        <BenefitTitle>Animal Collision Protection</BenefitTitle>
+                        <p>Compensation for damages in collisions with animals</p>
                     </BenefitText>
                 </Benefit>
             </AdditionalBenefits>
 
             <ButtonGroup>
                 <Button type="button" onClick={handleBack}>
-                    Назад
+                    Back
                 </Button>
                 <Button
                     type="button"
                     onClick={handleContinue}
                     disabled={loadingPricing}
                 >
-                    {loadingPricing ? 'Загрузка...' : 'Продолжить'}
+                    {loadingPricing ? 'Loading...' : 'Continue'}
                 </Button>
             </ButtonGroup>
         </Container>

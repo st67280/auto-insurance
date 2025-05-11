@@ -7,42 +7,60 @@ const insuranceService = {
     // Расчет стоимости страховки
     async calculateInsurance(vehicleId, packageType, customerInfo, additionalServices) {
         try {
+            console.log('=== calculateInsurance called ===');
+            console.log('vehicleId:', vehicleId);
+            console.log('packageType:', packageType);
+
             const mongoose = require('mongoose');
             if (!mongoose.Types.ObjectId.isValid(vehicleId)) {
                 throw new Error('Некорректный ID транспортного средства');
             }
+
             // Получаем информацию о ТС и продукте
             const vehicle = await Vehicle.findById(vehicleId);
+            console.log('Vehicle found:', vehicle ? 'Yes' : 'No');
             if (!vehicle) {
                 throw new Error('Транспортное средство не найдено');
             }
 
             const product = await Product.findOne({ type: packageType, active: true });
+            console.log('Product found:', product ? 'Yes' : 'No');
+            console.log('Product type:', product?.type);
+            console.log('Product pricing:', product?.pricing);
+
             if (!product) {
                 throw new Error('Продукт не найден');
             }
 
             // Расчет базовой стоимости
             let basePrice = this.calculateBasePrice(vehicle, product, customerInfo);
+            console.log('Base price calculated:', basePrice);
 
             // Расчет стоимости дополнительных услуг
             const additionalServicesPrice = this.calculateAdditionalServicesPrice(
                 additionalServices,
                 vehicle
             );
+            console.log('Additional services price:', additionalServicesPrice);
 
             // Применение скидок
             const discounts = this.calculateDiscounts(vehicle, customerInfo);
+            console.log('Discounts:', discounts);
 
             // Итоговая цена
             const totalPrice = Math.round(basePrice + additionalServicesPrice - discounts);
+            console.log('Total price:', totalPrice);
 
-            return {
+            const result = {
                 basePrice,
                 additionalServicesPrice,
                 discounts,
                 totalPrice
             };
+
+            console.log('=== Final result ===', result);
+
+            return result;
         } catch (error) {
             console.error('Ошибка при расчете страховки:', error);
             throw error;

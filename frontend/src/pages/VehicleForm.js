@@ -250,7 +250,7 @@ const VehicleForm = () => {
             try {
                 // Проверка обязательных полей
                 if (!manualVehicle.brand || !manualVehicle.model || !manualVehicle.weight) {
-                    toast.error('Пожалуйста, заполните все обязательные поля');
+                    toast.error('Please fill all required fields');
                     return;
                 }
 
@@ -262,41 +262,41 @@ const VehicleForm = () => {
                     ...manualVehicle
                 });
 
-                toast.success('Информация о транспортном средстве сохранена');
+                toast.success('Vehicle information saved successfully');
                 nextStep();
                 navigate('/insurance/customer');
             } catch (error) {
-                toast.error('Ошибка при сохранении данных');
+                toast.error('Error saving vehicle data');
             }
             return;
         }
 
         // Валидация VIN кода
         if (!vin) {
-            setVinError('Пожалуйста, введите VIN код');
+            setVinError('Please enter VIN code');
             return;
         }
 
         if (vin.length < 7) {
-            setVinError('VIN код должен содержать не менее 7 символов');
+            setVinError('VIN code must be at least 7 characters long');
             return;
         }
 
         try {
             // Получение информации о ТС по VIN
             await getVehicleByVin(vin);
-            toast.success('Информация о транспортном средстве получена');
+            toast.success('Vehicle information retrieved successfully');
             nextStep();
             navigate('/insurance/customer');
         } catch (error) {
-            toast.error('Не удалось получить информацию о транспортном средстве');
-            setVinError('Не удалось получить информацию о транспортном средстве по VIN коду');
+            toast.error('Failed to retrieve vehicle information');
+            setVinError('Failed to retrieve vehicle information by VIN code');
         }
     };
 
     return (
         <div>
-            <h2>Выберите тип транспортного средства</h2>
+            <h2>Select Vehicle Type</h2>
 
             <VehicleTypeOptions>
                 <VehicleTypeOption
@@ -307,7 +307,7 @@ const VehicleForm = () => {
                         <OptionIcon>
                             <FiTruck />
                         </OptionIcon>
-                        <OptionTitle>Легковой автомобиль до 3,5 т</OptionTitle>
+                        <OptionTitle>Passenger Car up to 3.5t</OptionTitle>
                     </OptionHeader>
                 </VehicleTypeOption>
 
@@ -319,7 +319,7 @@ const VehicleForm = () => {
                         <OptionIcon>
                             <FiShoppingCart />
                         </OptionIcon>
-                        <OptionTitle>Мотоцикл</OptionTitle>
+                        <OptionTitle>Motorcycle</OptionTitle>
                     </OptionHeader>
                 </VehicleTypeOption>
 
@@ -331,7 +331,7 @@ const VehicleForm = () => {
                         <OptionIcon>
                             <FiBox />
                         </OptionIcon>
-                        <OptionTitle>Прицеп</OptionTitle>
+                        <OptionTitle>Trailer</OptionTitle>
                     </OptionHeader>
                 </VehicleTypeOption>
             </VehicleTypeOptions>
@@ -345,17 +345,17 @@ const VehicleForm = () => {
                     />
                     <ToggleSlider />
                 </Toggle>
-                <ToggleLabel>Электромобиль</ToggleLabel>
+                <ToggleLabel>Electric Vehicle</ToggleLabel>
             </ToggleContainer>
 
             <Form onSubmit={handleSubmit}>
                 <FormGroup>
-                    <Label htmlFor="vin">VIN код автомобиля</Label>
+                    <Label htmlFor="vin">Vehicle VIN Code</Label>
                     <InputGroup>
                         <Input
                             type="text"
                             id="vin"
-                            placeholder="Например: WBA3N5C52FK123456"
+                            placeholder="Example: WBA3N5C52FK123456"
                             value={vin}
                             onChange={(e) => {
                                 setVin(e.target.value);
@@ -364,7 +364,7 @@ const VehicleForm = () => {
                         />
                         <InfoButton
                             type="button"
-                            onClick={() => toast.info('VIN код - это уникальный идентификатор транспортного средства, состоящий из 17 символов')}
+                            onClick={() => toast.info('VIN code is a unique 17-character vehicle identifier')}
                         >
                             ?
                         </InfoButton>
@@ -374,9 +374,9 @@ const VehicleForm = () => {
 
                 {showManualInput && (
                     <>
-                        <h3>Ручной ввод данных</h3>
+                        <h3>Manual Data Entr</h3>
                         <FormGroup>
-                            <Label htmlFor="brand">Марка автомобиля*</Label>
+                            <Label htmlFor="brand">Vehicle Brand*</Label>
                             <Input
                                 type="text"
                                 id="brand"
@@ -388,7 +388,7 @@ const VehicleForm = () => {
                         </FormGroup>
 
                         <FormGroup>
-                            <Label htmlFor="model">Модель автомобиля*</Label>
+                            <Label htmlFor="model">Vehicle Model*</Label>
                             <Input
                                 type="text"
                                 id="model"
@@ -400,7 +400,7 @@ const VehicleForm = () => {
                         </FormGroup>
 
                         <FormGroup>
-                            <Label htmlFor="year">Год выпуска</Label>
+                            <Label htmlFor="year">Year of Manufacture</Label>
                             <Input
                                 type="number"
                                 id="year"
@@ -413,7 +413,7 @@ const VehicleForm = () => {
                         </FormGroup>
 
                         <FormGroup>
-                            <Label htmlFor="engineVolume">Объем двигателя (куб. см)</Label>
+                            <Label htmlFor="engineVolume">Engine Volume (cc)</Label>
                             <Input
                                 type="number"
                                 id="engineVolume"
@@ -426,7 +426,7 @@ const VehicleForm = () => {
                         </FormGroup>
 
                         <FormGroup>
-                            <Label htmlFor="weight">Вес автомобиля (кг)*</Label>
+                            <Label htmlFor="weight">Vehicle Weight (kg)*</Label>
                             <Input
                                 type="number"
                                 id="weight"
@@ -439,7 +439,7 @@ const VehicleForm = () => {
                         </FormGroup>
 
                         <FormGroup>
-                            <Label htmlFor="ownersCount">Количество владельцев</Label>
+                            <Label htmlFor="ownersCount">Number of Owners</Label>
                             <Input
                                 type="number"
                                 id="ownersCount"
@@ -457,16 +457,16 @@ const VehicleForm = () => {
                         type="button"
                         onClick={() => setShowManualInput(!showManualInput)}
                     >
-                        {showManualInput ? 'Скрыть ручной ввод' : 'У меня нет VIN кода'}
+                        {showManualInput ? 'Hide Manual Entry' : 'I dont have a VIN code'}
                     </ManualInputLink>
                 </ManualInputToggle>
 
                 <ButtonGroup>
                     <Button type="button" onClick={() => navigate('/')}>
-                        Назад
+                        Back
                     </Button>
                     <Button type="submit" disabled={loadingVehicle}>
-                        {loadingVehicle ? 'Загрузка...' : 'Продолжить'}
+                        {loadingVehicle ? 'Loading...' : 'Continue'}
                     </Button>
                 </ButtonGroup>
             </Form>

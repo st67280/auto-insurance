@@ -29,7 +29,7 @@ const defaultProducts = [
             ownVehicleDamage: false,
             replacementVehicle: false
         },
-        pricing: { basePrice: 19229 }
+        pricing: { basePrice: 6000 }
     },
     {
         type: 'dominant',
@@ -44,7 +44,7 @@ const defaultProducts = [
             ownVehicleDamage: false,
             replacementVehicle: false
         },
-        pricing: { basePrice: 20189 }
+        pricing: { basePrice: 10000 }
     },
     {
         type: 'premiant',
@@ -59,7 +59,7 @@ const defaultProducts = [
             ownVehicleDamage: true,
             replacementVehicle: true
         },
-        pricing: { basePrice: 22305 }
+        pricing: { basePrice: 15000 }
     }
 ];
 

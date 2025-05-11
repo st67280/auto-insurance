@@ -2,27 +2,26 @@ import React from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 
-// Компонент для защиты маршрутов, требующих авторизации
+// Component to protect routes that require authentication
 const ProtectedRoute = ({ children, allowedRoles = [] }) => {
     const { user, loading } = useAuth();
 
-    // Если данные еще загружаются, показываем индикатор загрузки
+    // Show loading indicator while auth state is loading
     if (loading) {
-        return <div className="loading">Загрузка...</div>;
+        return <div className="loading">Loading...</div>;
     }
 
-    // Если пользователь не авторизован, перенаправляем на страницу входа
+    // If not authenticated, redirect to login page
     if (!user) {
         return <Navigate to="/login" replace />;
     }
 
-    // Если указаны разрешенные роли и роль пользователя не входит в список,
-    // перенаправляем на главную страницу
+    // If user role is not in allowedRoles, redirect to home
     if (allowedRoles.length > 0 && !allowedRoles.includes(user.role)) {
         return <Navigate to="/" replace />;
     }
 
-    // Если все проверки пройдены, отображаем содержимое защищенного маршрута
+    // Otherwise, render the protected content
     return children;
 };
 

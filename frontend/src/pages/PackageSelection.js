@@ -5,6 +5,7 @@ import { toast } from 'react-toastify';
 import styled from 'styled-components';
 import Tooltip from '../components/Tooltip';
 import { FiCheck, FiX, FiShield, FiHeart, FiPackage } from 'react-icons/fi';
+import insuranceService from '../services/insuranceService';
 
 // Стилизованные компоненты
 const PackagesContainer = styled.div`
@@ -143,7 +144,9 @@ const PackageSelection = () => {
         loadingPricing,
         nextStep,
         prevStep,
-        availablePackages // Получаем из контекста
+        availablePackages,
+        customerInfo,
+        additionalServices
     } = useInsurance();
 
     const [packagePrices, setPackagePrices] = useState({
@@ -163,71 +166,55 @@ const PackageSelection = () => {
             if (!vehicle) return;
 
             try {
-                // Предварительный расчет цен для пакетов на основе их базовых цен
-                // Получаем базовые цены из доступных пакетов
-                const packageTypes = ['standard', 'dominant', 'premiant'];
-                const basePackagePrices = {};
+                // Сначала убедимся, что расчет работает для текущего пакета
+                const currentPricing = await calculateInsurance();
+                console.log('Current package pricing:', currentPricing);
 
-                // Найдем базовые цены из доступных пакетов
-                if (availablePackages && availablePackages.length > 0) {
-                    packageTypes.forEach(type => {
-                        const foundPackage = availablePackages.find(p => p.type === type);
-                        if (foundPackage && foundPackage.pricing && foundPackage.pricing.basePrice) {
-                            basePackagePrices[type] = foundPackage.pricing.basePrice;
-                        }
-                    });
+                const prices = {};
+
+                // Используем insuranceService напрямую
+                for (const packageType of ['standard', 'dominant', 'premiant']) {
+                    console.log(`Calculating for ${packageType}...`);
+
+                    const pricingData = await insuranceService.calculateInsurance(
+                        vehicle._id,
+                        packageType,
+                        customerInfo,
+                        additionalServices
+                    );
+
+                    console.log(`Result for ${packageType}:`, pricingData);
+
+                    if (pricingData && pricingData.totalPrice) {
+                        prices[packageType] = pricingData.totalPrice;
+                    } else {
+                        console.error(`No totalPrice for ${packageType}`);
+                        prices[packageType] = 0;
+                    }
                 }
 
-                // Если базовые цены не найдены, используем значения по умолчанию
-                if (!basePackagePrices.standard) basePackagePrices.standard = 15500;
-                if (!basePackagePrices.dominant) basePackagePrices.dominant = 17800;
-                if (!basePackagePrices.premiant) basePackagePrices.premiant = 19900;
-
-                // Расчет точной цены для выбранного пакета
-                const pricingData = await calculateInsurance();
-
-                if (pricingData) {
-                    // Расчет приблизительных цен для других пакетов на основе пропорций базовых цен
-                    const basePriceRatio = {
-                        standard: basePackagePrices.standard / basePackagePrices[selectedPackage],
-                        dominant: basePackagePrices.dominant / basePackagePrices[selectedPackage],
-                        premiant: basePackagePrices.premiant / basePackagePrices[selectedPackage]
-                    };
-
-                    // Устанавливаем цены всех пакетов, используя точную цену выбранного пакета
-                    // и приблизительные цены для остальных
-                    setPackagePrices({
-                        standard: Math.round(pricingData.totalPrice * basePriceRatio.standard),
-                        dominant: Math.round(pricingData.totalPrice * basePriceRatio.dominant),
-                        premiant: Math.round(pricingData.totalPrice * basePriceRatio.premiant)
-                    });
-
-                    // Обновляем цену выбранного пакета на точное значение
-                    setPackagePrices(prevPrices => ({
-                        ...prevPrices,
-                        [selectedPackage]: pricingData.totalPrice
-                    }));
-
-                    setInitialCalculationDone(true);
-                    setNeedsRecalculation(false); // Сбрасываем флаг после пересчета
-                }
+                console.log('Final prices:', prices);
+                setPackagePrices(prices);
+                setInitialCalculationDone(true);
             } catch (err) {
                 console.error('Ошибка при расчете цен:', err);
                 toast.error('Не удалось рассчитать цены пакетов');
             }
         };
 
-        // Запускаем расчет цен при первой загрузке или изменении выбранного пакета
-        if (vehicle && (!initialCalculationDone || needsRecalculation)) {
+        if (vehicle && !initialCalculationDone) {
+            console.log('Starting price calculation...');
+            console.log('Vehicle:', vehicle);
+            console.log('CustomerInfo:', customerInfo);
+            console.log('AdditionalServices:', additionalServices);
             calculatePrices();
         }
-    }, [vehicle, selectedPackage, initialCalculationDone, needsRecalculation, calculateInsurance, availablePackages]);
+    }, [vehicle, customerInfo, additionalServices]);
 
-    // Обработчик выбора пакета
+// Упрощенный обработчик выбора пакета
     const handlePackageSelect = (packageType) => {
         if (packageType !== selectedPackage) {
             selectPackage(packageType);
-            setNeedsRecalculation(true); // Устанавливаем флаг необходимости пересчета при смене пакета
         }
     };
 
@@ -247,15 +234,15 @@ const PackageSelection = () => {
     if (loadingPricing && !initialCalculationDone) {
         return (
             <LoadingContainer>
-                <h2>Расчет стоимости страховки...</h2>
-                <p>Пожалуйста, подождите</p>
+                <h2>Calculation of insurance costs...</h2>
+                <p>Please wait</p>
             </LoadingContainer>
         );
     }
 
     return (
         <div>
-            <h2>Выберите пакет страхования</h2>
+            <h2>Select Insurance Package</h2>
 
             <PackagesContainer>
                 <PackageOptions>
@@ -274,7 +261,7 @@ const PackageSelection = () => {
                             </StarsContainer>
                             <PackageTitle>Standard</PackageTitle>
                             <PackagePrice>
-                                {packagePrices.standard} Kč<PackagePricePeriod> / год</PackagePricePeriod>
+                                {packagePrices.standard} Kč<PackagePricePeriod> / year</PackagePricePeriod>
                             </PackagePrice>
                         </PackageHeader>
 
@@ -284,10 +271,10 @@ const PackageSelection = () => {
                                     <FiShield />
                                 </FeatureIcon>
                                 <FeatureText>
-                                    <div>Ущерб имуществу и вещам</div>
-                                    <FeatureValue>50 млн. Kč</FeatureValue>
+                                    <div>Damage to property and belongings</div>
+                                    <FeatureValue>50 mil. Kč</FeatureValue>
                                 </FeatureText>
-                                <Tooltip text="Максимальный лимит страхового возмещения за ущерб, причиненный имуществу и вещам третьих лиц" />
+                                <Tooltip text="Maximum limit of insurance indemnity for damage caused to property and belongings of third parties" />
                             </PackageFeature>
 
                             <PackageFeature>
@@ -295,10 +282,10 @@ const PackageSelection = () => {
                                     <FiHeart />
                                 </FeatureIcon>
                                 <FeatureText>
-                                    <div>Ущерб здоровью</div>
-                                    <FeatureValue>50 млн. Kč</FeatureValue>
+                                    <div>Damage to health</div>
+                                    <FeatureValue>50 mil. Kč</FeatureValue>
                                 </FeatureText>
-                                <Tooltip text="Максимальный лимит страхового возмещения за ущерб, причиненный здоровью третьих лиц" />
+                                <Tooltip text="Maximum limit of insurance indemnity for damage caused to the health of third persons" />
                             </PackageFeature>
 
                             <PackageFeature>
@@ -306,10 +293,10 @@ const PackageSelection = () => {
                                     <FiPackage />
                                 </FeatureIcon>
                                 <FeatureText>
-                                    <div>Страхование водителя</div>
+                                    <div>Driver's insurance</div>
                                     <FeatureValue>100 000 Kč</FeatureValue>
                                 </FeatureText>
-                                <Tooltip text="Страховое возмещение при травмах водителя транспортного средства" />
+                                <Tooltip text="Insurance indemnity for vehicle driver injuries. Driver's insurance Driver's insurance" />
                             </PackageFeature>
 
                             <PackageFeature>
@@ -317,10 +304,10 @@ const PackageSelection = () => {
                                     <FiPackage />
                                 </FeatureIcon>
                                 <FeatureText>
-                                    <div>Страхование личных вещей</div>
+                                    <div>Personal effects insurance</div>
                                     <FeatureValue>5 000 Kč</FeatureValue>
                                 </FeatureText>
-                                <Tooltip text="Страховое возмещение при повреждении или утрате личных вещей в результате ДТП" />
+                                <Tooltip text="Insurance indemnity for damage to or loss of personal belongings as a result of a road traffic accident" />
                             </PackageFeature>
 
                             <PackageFeature>
@@ -328,9 +315,9 @@ const PackageSelection = () => {
                                     <FiCheck />
                                 </FeatureIcon>
                                 <FeatureText>
-                                    <div>Ассистентские услуги</div>
+                                    <div>Assistant services</div>
                                 </FeatureText>
-                                <Tooltip text="Помощь на дороге и эвакуация при ДТП или поломке" />
+                                <Tooltip text="Roadside assistance and towing in the event of an accident or breakdown" />
                             </PackageFeature>
 
                             <PackageFeature>
@@ -338,9 +325,9 @@ const PackageSelection = () => {
                                     <FiX />
                                 </FeatureIcon>
                                 <FeatureText>
-                                    <div>Страхование при виновности в ДТП</div>
+                                    <div>Insurance at fault in a road traffic accident</div>
                                 </FeatureText>
-                                <Tooltip text="Страхование ущерба собственного транспортного средства при виновности в ДТП" />
+                                <Tooltip text="Insurance for damage to one's own vehicle in case of fault in a traffic accident" />
                             </PackageFeature>
 
                             <PackageFeature>
@@ -348,9 +335,9 @@ const PackageSelection = () => {
                                     <FiX />
                                 </FeatureIcon>
                                 <FeatureText>
-                                    <div>Аренда замещающего ТС</div>
+                                    <div>Lease of a substitute vehicle</div>
                                 </FeatureText>
-                                <Tooltip text="Возмещение расходов на аренду замещающего транспортного средства при виновности в ДТП" />
+                                <Tooltip text="Reimbursement of expenses for renting a replacement vehicle when at fault in a road traffic accident" />
                             </PackageFeature>
                         </PackageFeatures>
 
@@ -378,7 +365,7 @@ const PackageSelection = () => {
                             </StarsContainer>
                             <PackageTitle>Dominant</PackageTitle>
                             <PackagePrice>
-                                {packagePrices.dominant} Kč<PackagePricePeriod> / год</PackagePricePeriod>
+                                {packagePrices.dominant} Kč<PackagePricePeriod> / year</PackagePricePeriod>
                             </PackagePrice>
                         </PackageHeader>
 
@@ -388,10 +375,10 @@ const PackageSelection = () => {
                                     <FiShield />
                                 </FeatureIcon>
                                 <FeatureText>
-                                    <div>Ущерб имуществу и вещам</div>
-                                    <FeatureValue>100 млн. Kč</FeatureValue>
+                                    <div>Damage to property and belongings</div>
+                                    <FeatureValue>100 mil. Kč</FeatureValue>
                                 </FeatureText>
-                                <Tooltip text="Максимальный лимит страхового возмещения за ущерб, причиненный имуществу и вещам третьих лиц" />
+                                <Tooltip text="Maximum limit of insurance indemnity for damage caused to property and belongings of third parties" />
                             </PackageFeature>
 
                             <PackageFeature>
@@ -399,10 +386,10 @@ const PackageSelection = () => {
                                     <FiHeart />
                                 </FeatureIcon>
                                 <FeatureText>
-                                    <div>Ущерб здоровью</div>
-                                    <FeatureValue>100 млн. Kč</FeatureValue>
+                                    <div>Damage to health</div>
+                                    <FeatureValue>100 mil. Kč</FeatureValue>
                                 </FeatureText>
-                                <Tooltip text="Максимальный лимит страхового возмещения за ущерб, причиненный здоровью третьих лиц" />
+                                <Tooltip text="Maximum limit of insurance indemnity for damage caused to the health of third persons" />
                             </PackageFeature>
 
                             <PackageFeature>
@@ -410,10 +397,10 @@ const PackageSelection = () => {
                                     <FiPackage />
                                 </FeatureIcon>
                                 <FeatureText>
-                                    <div>Страхование водителя</div>
+                                    <div>Driver's insurance</div>
                                     <FeatureValue>200 000 Kč</FeatureValue>
                                 </FeatureText>
-                                <Tooltip text="Страховое возмещение при травмах водителя транспортного средства" />
+                                <Tooltip text="Insurance indemnity for injuries to the driver of a motor vehicle" />
                             </PackageFeature>
 
                             <PackageFeature>
@@ -421,10 +408,10 @@ const PackageSelection = () => {
                                     <FiPackage />
                                 </FeatureIcon>
                                 <FeatureText>
-                                    <div>Страхование личных вещей</div>
+                                    <div>Personal effects insurance</div>
                                     <FeatureValue>10 000 Kč</FeatureValue>
                                 </FeatureText>
-                                <Tooltip text="Страховое возмещение при повреждении или утрате личных вещей в результате ДТП" />
+                                <Tooltip text="Insurance indemnity for damage to or loss of personal belongings as a result of a road traffic accident" />
                             </PackageFeature>
 
                             <PackageFeature>
@@ -432,9 +419,9 @@ const PackageSelection = () => {
                                     <FiCheck />
                                 </FeatureIcon>
                                 <FeatureText>
-                                    <div>Ассистентские услуги</div>
+                                    <div>Assistant services</div>
                                 </FeatureText>
-                                <Tooltip text="Помощь на дороге и эвакуация при ДТП или поломке" />
+                                <Tooltip text="Roadside assistance and towing in the event of an accident or breakdown" />
                             </PackageFeature>
 
                             <PackageFeature>
@@ -442,9 +429,9 @@ const PackageSelection = () => {
                                     <FiX />
                                 </FeatureIcon>
                                 <FeatureText>
-                                    <div>Страхование при виновности в ДТП</div>
+                                    <div>Insurance at fault in a road traffic accident</div>
                                 </FeatureText>
-                                <Tooltip text="Страхование ущерба собственного транспортного средства при виновности в ДТП" />
+                                <Tooltip text="Insurance of damage to your own vehicle if you are at fault in a traffic accident" />
                             </PackageFeature>
 
                             <PackageFeature>
@@ -452,9 +439,9 @@ const PackageSelection = () => {
                                     <FiX />
                                 </FeatureIcon>
                                 <FeatureText>
-                                    <div>Аренда замещающего ТС</div>
+                                    <div>Lease of a substitute vehicle</div>
                                 </FeatureText>
-                                <Tooltip text="Возмещение расходов на аренду замещающего транспортного средства при виновности в ДТП" />
+                                <Tooltip text="Reimbursement of expenses for renting a replacement vehicle when at fault in a road traffic accident" />
                             </PackageFeature>
                         </PackageFeatures>
 
@@ -482,7 +469,7 @@ const PackageSelection = () => {
                             </StarsContainer>
                             <PackageTitle>Premiant</PackageTitle>
                             <PackagePrice>
-                                {packagePrices.premiant} Kč<PackagePricePeriod> / год</PackagePricePeriod>
+                                {packagePrices.premiant} Kč<PackagePricePeriod> / year</PackagePricePeriod>
                             </PackagePrice>
                         </PackageHeader>
 
@@ -492,10 +479,10 @@ const PackageSelection = () => {
                                     <FiShield />
                                 </FeatureIcon>
                                 <FeatureText>
-                                    <div>Ущерб имуществу и вещам</div>
-                                    <FeatureValue>200 млн. Kč</FeatureValue>
+                                    <div>Damage to property and belongings</div>
+                                    <FeatureValue>200 mil. Kč</FeatureValue>
                                 </FeatureText>
-                                <Tooltip text="Максимальный лимит страхового возмещения за ущерб, причиненный имуществу и вещам третьих лиц" />
+                                <Tooltip text="Maximum limit of insurance indemnity for damage caused to property and belongings of third parties" />
                             </PackageFeature>
 
                             <PackageFeature>
@@ -503,10 +490,10 @@ const PackageSelection = () => {
                                     <FiHeart />
                                 </FeatureIcon>
                                 <FeatureText>
-                                    <div>Ущерб здоровью</div>
-                                    <FeatureValue>200 млн. Kč</FeatureValue>
+                                    <div>Damage to health</div>
+                                    <FeatureValue>200 mil. Kč</FeatureValue>
                                 </FeatureText>
-                                <Tooltip text="Максимальный лимит страхового возмещения за ущерб, причиненный здоровью третьих лиц" />
+                                <Tooltip text="Maximum limit of insurance indemnity for damage caused to the health of third persons" />
                             </PackageFeature>
 
                             <PackageFeature>
@@ -514,10 +501,10 @@ const PackageSelection = () => {
                                     <FiPackage />
                                 </FeatureIcon>
                                 <FeatureText>
-                                    <div>Страхование водителя</div>
+                                    <div>Driver's insurance</div>
                                     <FeatureValue>300 000 Kč</FeatureValue>
                                 </FeatureText>
-                                <Tooltip text="Страховое возмещение при травмах водителя транспортного средства" />
+                                <Tooltip text="Insurance indemnity for injuries to the driver of a motor vehicle" />
                             </PackageFeature>
 
                             <PackageFeature>
@@ -525,10 +512,10 @@ const PackageSelection = () => {
                                     <FiPackage />
                                 </FeatureIcon>
                                 <FeatureText>
-                                    <div>Страхование личных вещей</div>
+                                    <div>Personal effects insurance</div>
                                     <FeatureValue>15 000 Kč</FeatureValue>
                                 </FeatureText>
-                                <Tooltip text="Страховое возмещение при повреждении или утрате личных вещей в результате ДТП" />
+                                <Tooltip text="Insurance indemnity for damage to or loss of personal belongings as a result of a road traffic accident" />
                             </PackageFeature>
 
                             <PackageFeature>
@@ -536,9 +523,9 @@ const PackageSelection = () => {
                                     <FiCheck />
                                 </FeatureIcon>
                                 <FeatureText>
-                                    <div>Ассистентские услуги</div>
+                                    <div>Assistant services</div>
                                 </FeatureText>
-                                <Tooltip text="Помощь на дороге и эвакуация при ДТП или поломке" />
+                                <Tooltip text="Roadside assistance and towing in the event of an accident or breakdown" />
                             </PackageFeature>
 
                             <PackageFeature>
@@ -546,10 +533,10 @@ const PackageSelection = () => {
                                     <FiCheck />
                                 </FeatureIcon>
                                 <FeatureText>
-                                    <div>Страхование при виновности в ДТП</div>
+                                    <div>Insurance at fault in a road traffic accident</div>
                                     <FeatureValue>10 000 Kč</FeatureValue>
                                 </FeatureText>
-                                <Tooltip text="Страхование ущерба собственного транспортного средства при виновности в ДТП" />
+                                <Tooltip text="Insurance of damage to your own vehicle if you are at fault in a traffic accident" />
                             </PackageFeature>
 
                             <PackageFeature>
@@ -557,10 +544,10 @@ const PackageSelection = () => {
                                     <FiCheck />
                                 </FeatureIcon>
                                 <FeatureText>
-                                    <div>Аренда замещающего ТС</div>
+                                    <div>Lease of a substitute vehicle</div>
                                     <FeatureValue>10 000 Kč</FeatureValue>
                                 </FeatureText>
-                                <Tooltip text="Возмещение расходов на аренду замещающего транспортного средства при виновности в ДТП" />
+                                <Tooltip text="Reimbursement of expenses for renting a replacement vehicle when at fault in a road traffic accident" />
                             </PackageFeature>
                         </PackageFeatures>
 
@@ -577,10 +564,10 @@ const PackageSelection = () => {
 
             <ButtonGroup>
                 <Button type="button" onClick={handleBack}>
-                    Назад
+                    Back
                 </Button>
                 <Button type="button" onClick={handleContinue}>
-                    Продолжить
+                    Continue
                 </Button>
             </ButtonGroup>
         </div>

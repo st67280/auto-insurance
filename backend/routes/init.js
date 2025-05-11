@@ -69,7 +69,7 @@ router.post('/products', async (req, res) => {
                     replacementVehicle: false
                 },
                 pricing: {
-                    basePrice: 19229,
+                    basePrice: 6000,
                     weightMultiplier: 1.0,
                     engineVolumeMultiplier: 1.0,
                     vehicleAgeMultiplier: 1.0,
@@ -92,7 +92,7 @@ router.post('/products', async (req, res) => {
                     replacementVehicle: false
                 },
                 pricing: {
-                    basePrice: 20189,
+                    basePrice: 10000,
                     weightMultiplier: 1.02,
                     engineVolumeMultiplier: 1.05,
                     vehicleAgeMultiplier: 1.02,
@@ -115,7 +115,7 @@ router.post('/products', async (req, res) => {
                     replacementVehicle: true
                 },
                 pricing: {
-                    basePrice: 22305,
+                    basePrice: 15000,
                     weightMultiplier: 1.05,
                     engineVolumeMultiplier: 1.1,
                     vehicleAgeMultiplier: 1.05,

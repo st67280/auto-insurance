@@ -23,7 +23,7 @@ function App() {
     const { loading } = useAuth();
 
     if (loading) {
-        return <div className="loading">Загрузка...</div>;
+        return <div className="loading">Loading...</div>;
     }
 
     return (
@@ -58,7 +58,7 @@ function App() {
                 </Route>
 
                 {/* Обработка несуществующих маршрутов */}
-                <Route path="*" element={<div>Страница не найдена</div>} />
+                <Route path="*" element={<div>Error finding path</div>} />
             </Route>
         </Routes>
     );

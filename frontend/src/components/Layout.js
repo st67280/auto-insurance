@@ -57,17 +57,17 @@ const Layout = () => {
             <Header>
                 <div className="container">
                     <Nav>
-                        <Logo to="/">АвтоСтрахование</Logo>
+                        <Logo to="/">Auto Insurance</Logo>
                         <div>
-                            <NavLink to="/">Главная</NavLink>
-                            <NavLink to="/insurance">Рассчитать страховку</NavLink>
+                            <NavLink to="/">Home</NavLink>
+                            <NavLink to="/insurance">Calculate Insurance</NavLink>
                             {user ? (
                                 <>
-                                    {isAdmin() && <NavLink to="/admin">Админ-панель</NavLink>}
-                                    <NavLink to="/" onClick={logout}>Выйти</NavLink>
+                                    {isAdmin() && <NavLink to="/admin">Admin Panel</NavLink>}
+                                    <NavLink to="/" onClick={logout}>Logout</NavLink>
                                 </>
                             ) : (
-                                <NavLink to="/login">Войти</NavLink>
+                                <NavLink to="/login">Login</NavLink>
                             )}
                         </div>
                     </Nav>
@@ -82,7 +82,7 @@ const Layout = () => {
 
             <Footer>
                 <div className="container">
-                    <p>&copy; {new Date().getFullYear()} АвтоСтрахование. Все права защищены.</p>
+                    <p>&copy; {new Date().getFullYear()} Auto Insurance. All rights reserved.</p>
                 </div>
             </Footer>
         </>

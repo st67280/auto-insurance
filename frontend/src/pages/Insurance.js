@@ -36,7 +36,7 @@ const Insurance = () => {
 
     return (
         <InsuranceContainer>
-            <Title>Оформление страховки</Title>
+            <Title>Insurance Registration</Title>
             <Steps />
             <Outlet />
         </InsuranceContainer>
